@@ -229,8 +229,8 @@ function findTaxonomy(termId: string, taxonomy: Readonly<TaxonomyModels.Taxonomy
     return undefined;
 }
 
-function transformRichTextValue(exportElement: ExportElement | undefined, context: ExportContext): MigrationElementTransformData {
-    if (!exportElement || !exportElement.value) {
+function transformRichTextValue(exportElement: ExportElement, context: ExportContext): MigrationElementTransformData {
+    if (!exportElement.value) {
         return {
             components: [],
             value: ''
