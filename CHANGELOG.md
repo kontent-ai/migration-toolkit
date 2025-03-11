@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.5.0](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.4.0...v2.5.0) (2025-03-11)
+
+
+### Features
+
+* updates deps ([804fe86](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/804fe860e185693928eafd6b981868613a6a6dc9))
+* updates deps ([df95e12](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/df95e1264b91e89c7a1df5a2236a24fd751ef081))
+
+
+### Bug Fixes
+
+* Fixes extracting error messages in import ([f9efb3b](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/f9efb3b7f6b822d0dc4e709cfc1ccad831783c3c))
+* Fixes id -> codename translation of links to content items within RTE in certain cases ([20b3df6](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/20b3df69f77c8af746fdadcad102875124399e08))
+
 ## [2.4.0](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.3.0...v2.4.0) (2025-01-02)
 
 
