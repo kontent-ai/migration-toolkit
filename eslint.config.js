@@ -8,7 +8,6 @@ export default tseslint.config(eslint.configs.recommended, ...tseslint.configs.r
             tsconfigRootDir: import.meta.dirname
         }
     },
-    ignores: ['tests/**/*'],
     rules: {
         '@typescript-eslint/no-namespace': 'off',
         '@typescript-eslint/naming-convention': [

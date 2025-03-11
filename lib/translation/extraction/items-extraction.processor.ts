@@ -2,6 +2,8 @@ import { ElementModels } from '@kontent-ai/management-sdk';
 import { GetFlattenedElementByIds } from 'lib/export/export.models.js';
 import { match, P } from 'ts-pattern';
 import {
+    isArray,
+    isString,
     MigrationElementModels,
     MigrationElements,
     parseAsMigrationReferencesArray,
@@ -43,7 +45,7 @@ export function itemsExtractionProcessor() {
 
                     match(typeElement.type)
                         .with('rich_text', () => {
-                            const rteValue = itemElement.value?.toString();
+                            const rteValue = itemElement.value && isString(itemElement.value) ? itemElement.value : undefined;
 
                             // extract referenced items
                             richTextProcessor()
@@ -78,12 +80,12 @@ export function itemsExtractionProcessor() {
                             extractedComponents.assetIds.forEach((id) => extractedIds.assetIds.add(id));
                         })
                         .with(P.union('modular_content', 'subpages'), () => {
-                            if (itemElement.value && Array.isArray(itemElement.value)) {
+                            if (itemElement.value && isArray(itemElement.value)) {
                                 itemElement.value.forEach((value) => (value.id ? extractedIds.itemIds.add(value.id) : {}));
                             }
                         })
                         .with('asset', () => {
-                            if (itemElement.value && Array.isArray(itemElement.value)) {
+                            if (itemElement.value && isArray(itemElement.value)) {
                                 itemElement.value.forEach((value) => (value.id ? extractedIds.assetIds.add(value.id) : {}));
                             }
                         })

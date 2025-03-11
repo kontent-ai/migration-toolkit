@@ -1,10 +1,11 @@
 import { MigrationElementValue, MigrationReference } from '../models/migration.models.js';
+import { isArray, isString } from './global.utils.js';
 
 export function parseAsMigrationReferencesArray(value: MigrationElementValue): readonly MigrationReference[] {
     if (!value) {
         return [];
     }
-    if (Array.isArray(value)) {
+    if (isArray(value)) {
         return value;
     }
     throw Error(`Value is not an array`);
@@ -23,8 +24,8 @@ export function findRequired<T>(
         return item;
     }
 
-    if (typeof errorMessage === 'string' || errorMessage instanceof String) {
-        throw Error(errorMessage.toString());
+    if (isString(errorMessage)) {
+        throw Error(errorMessage);
     }
     return errorMessage();
 }
@@ -32,7 +33,7 @@ export function findRequired<T>(
 export async function mapAsync<Input, Result>(
     array: readonly Input[],
     callbackAsync: (item: Readonly<Input>, index: number, array: readonly Input[]) => Promise<Readonly<Result>>
-): Promise<Readonly<Result[]>> {
+): Promise<readonly Result[]> {
     const results: Result[] = [];
     for (let i = 0; i < array.length; i++) {
         results.push(await callbackAsync(array[i], i, array));

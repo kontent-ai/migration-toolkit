@@ -2,11 +2,6 @@ import { WorkflowContracts, WorkflowModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { findRequired } from '../utils/array.utils.js';
 
-interface TransitionTo {
-    readonly codename: string;
-    readonly id: string;
-}
-
 export type WorkflowStep = {
     readonly codename: string;
     readonly id: string;
@@ -24,6 +19,11 @@ type WorkflowMatcher = {
 type StepMatcher = {
     readonly match: (step: WorkflowStep, index: number) => boolean;
     readonly errorMessage: string;
+};
+
+type TransitionTo = {
+    readonly codename: string;
+    readonly id: string;
 };
 
 export function workflowHelper(workflows: readonly Readonly<WorkflowModels.Workflow>[]) {

@@ -10,12 +10,11 @@ export type Writeable<T> = { -readonly [P in keyof T]: T[P] };
 
 export const isNotUndefined = <T>(item: T | undefined): item is T => item !== undefined;
 
+export const isString = (value: unknown): value is string => typeof value === 'string';
+export const isArray = <T>(value: unknown): value is Array<T> => Array.isArray(value);
+
 export function formatBytes(bytes: number): string {
     return format(bytes) ?? 'n/a';
-}
-
-export function sleepAsync(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function exitProgram(data: { readonly message: string }): never {
