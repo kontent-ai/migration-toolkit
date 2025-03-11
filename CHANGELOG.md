@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.6.0](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.5.0...v2.6.0) (2025-03-11)
+
+
+### Features
+
+* updates deps with vulnerability ([304408f](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/304408f89a9c83b039a005ca85d90fd52f943da0))
+
 ## [2.5.0](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.4.0...v2.5.0) (2025-03-11)
 
 
