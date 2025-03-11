@@ -1,7 +1,7 @@
-import { AssetModels, ContentItemModels, LanguageVariantModels } from '@kontent-ai/management-sdk';
+import type { AssetModels, ContentItemModels, LanguageVariantModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { match } from 'ts-pattern';
-import {
+import type {
     AssetStateInTargetEnvironmentByCodename,
     ItemStateInTargetEnvironmentByCodename,
     LanguageVariantSchedulesStateValues,
@@ -11,7 +11,9 @@ import {
     LanguageVariantWorkflowStateValues,
     LogSpinnerData,
     MigrationItem,
-    WorkflowStep,
+    WorkflowStep
+} from '../../core/index.js';
+import {
     findRequired,
     is404Error,
     managementClientUtils,
@@ -19,8 +21,9 @@ import {
     runMapiRequestAsync,
     workflowHelper as workflowHelperInit
 } from '../../core/index.js';
-import { ExtractItemByCodename, itemsExtractionProcessor } from '../../translation/index.js';
-import { GetFlattenedElementByCodenames, ImportContext, ImportContextConfig, ImportContextEnvironmentData } from '../import.models.js';
+import type { ExtractItemByCodename } from '../../translation/index.js';
+import { itemsExtractionProcessor } from '../../translation/index.js';
+import type { GetFlattenedElementByCodenames, ImportContext, ImportContextConfig, ImportContextEnvironmentData } from '../import.models.js';
 
 interface LanguageVariantWrapper {
     readonly draftLanguageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined;

@@ -1,5 +1,5 @@
-import { Buffer as BufferProxy } from 'buffer';
-import { Logger } from '../core/index.js';
+import type { Buffer as BufferProxy } from 'buffer';
+import type { Logger } from '../core/index.js';
 
 export type FileBinaryData = BufferProxy | Blob;
 export type ZipCompressionLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

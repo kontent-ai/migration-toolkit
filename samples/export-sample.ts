@@ -1,4 +1,4 @@
-import { getDefaultLogger, exportAsync, storeAsync } from '../lib/index.js';
+import { exportAsync, getDefaultLogger, storeAsync } from '../lib/index.js';
 
 const exportData = await exportAsync({
     logger: getDefaultLogger(),

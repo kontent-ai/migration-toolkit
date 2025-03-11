@@ -2,7 +2,7 @@ import { SharedModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { match } from 'ts-pattern';
 import { ZodError } from 'zod';
-import { ErrorData, OriginalManagementError } from '../models/core.models.js';
+import type { ErrorData, OriginalManagementError } from '../models/core.models.js';
 
 export function extractErrorData(error: unknown): ErrorData {
     return match(error)

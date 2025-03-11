@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { Logger } from '../models/log.models.js';
+import type { Logger } from '../models/log.models.js';
 import { getMigrationManagementClient, managementClientUtils } from './management-client-utils.js';
 
 export async function confirmExportAsync(data: {

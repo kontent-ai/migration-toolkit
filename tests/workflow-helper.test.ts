@@ -1,4 +1,4 @@
-import { WorkflowContracts, WorkflowModels } from '@kontent-ai/management-sdk';
+import type { WorkflowContracts, WorkflowModels } from '@kontent-ai/management-sdk';
 import { describe, expect, it } from 'vitest';
 import { workflowHelper } from '../lib/index.js';
 

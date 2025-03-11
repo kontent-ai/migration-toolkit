@@ -1,5 +1,7 @@
-import { MigrationData, executeWithTrackingAsync } from '../core/index.js';
-import { ExportConfig, exportManager } from '../export/index.js';
+import type { MigrationData } from '../core/index.js';
+import { executeWithTrackingAsync } from '../core/index.js';
+import type { ExportConfig } from '../export/index.js';
+import { exportManager } from '../export/index.js';
 import { libMetadata } from '../metadata.js';
 
 export async function exportAsync(config: ExportConfig): Promise<MigrationData> {

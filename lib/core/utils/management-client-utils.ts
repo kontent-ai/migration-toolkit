@@ -1,5 +1,5 @@
-import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
-import {
+import type { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+import type {
     AssetFolderModels,
     CollectionModels,
     ContentTypeModels,
@@ -8,13 +8,13 @@ import {
     LanguageModels,
     ManagementClient,
     TaxonomyModels,
-    WorkflowModels,
-    createManagementClient
+    WorkflowModels
 } from '@kontent-ai/management-sdk';
+import { createManagementClient } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { coreConfig } from '../config.js';
-import { FlattenedContentType, FlattenedContentTypeElement } from '../models/core.models.js';
-import { LogSpinnerData, Logger } from '../models/log.models.js';
+import type { FlattenedContentType, FlattenedContentTypeElement } from '../models/core.models.js';
+import type { LogSpinnerData, Logger } from '../models/log.models.js';
 import { findRequired } from './array.utils.js';
 import { isNotUndefined } from './global.utils.js';
 import { defaultHttpService, defaultRetryStrategy } from './http.utils.js';

@@ -1,5 +1,11 @@
-import { AssetModels, ContentItemModels, ContentTypeElements, LanguageVariantModels, WorkflowModels } from '@kontent-ai/management-sdk';
-import { MigrationElementType } from './migration.models.js';
+import type {
+    AssetModels,
+    ContentItemModels,
+    ContentTypeElements,
+    LanguageVariantModels,
+    WorkflowModels
+} from '@kontent-ai/management-sdk';
+import type { MigrationElementType } from './migration.models.js';
 
 export type LiteralUnion<T extends string> = T | (string & {});
 export type TargetItemState = 'exists' | 'doesNotExists';

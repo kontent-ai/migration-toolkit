@@ -1,9 +1,10 @@
-import { ITrackingEventData, getTrackingService } from '@kontent-ai-consulting/tools-analytics';
+import type { ITrackingEventData } from '@kontent-ai-consulting/tools-analytics';
+import { getTrackingService } from '@kontent-ai-consulting/tools-analytics';
 import { isBrowser, isNode, isWebWorker } from 'browser-or-node';
 import { format } from 'bytes';
 import { getDefaultLogger } from '../logs/loggers.js';
-import { EnvContext } from '../models/core.models.js';
-import { Logger } from '../models/log.models.js';
+import type { EnvContext } from '../models/core.models.js';
+import type { Logger } from '../models/log.models.js';
 import { extractErrorData } from './error.utils.js';
 
 export type Writeable<T> = { -readonly [P in keyof T]: T[P] };

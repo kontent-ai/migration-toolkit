@@ -1,9 +1,10 @@
-import { Buffer as BufferProxy } from 'buffer';
+import type { Buffer as BufferProxy } from 'buffer';
 import JSZip from 'jszip';
-import { Logger, MigrationData, getDefaultLogger } from '../core/index.js';
+import type { Logger, MigrationData } from '../core/index.js';
+import { getDefaultLogger } from '../core/index.js';
 import { zipPackager } from './zip-packager.js';
 import { zipTransformer } from './zip-transformer.js';
-import { FileBinaryData } from './zip.models.js';
+import type { FileBinaryData } from './zip.models.js';
 
 export function zipManager(logger?: Logger) {
     const loggerToUse = logger ?? getDefaultLogger();

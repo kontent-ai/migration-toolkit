@@ -1,4 +1,4 @@
-import { importAsync, extractAsync } from '../lib/index.js';
+import { extractAsync, importAsync } from '../lib/index.js';
 
 // get data from previously stored export (optional)
 const data = await extractAsync({

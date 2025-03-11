@@ -1,14 +1,8 @@
-import { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
-import {
-    ExternalIdGenerator,
-    Logger,
-    ManagementClientConfig,
-    MigrationData,
-    executeWithTrackingAsync,
-    getDefaultLogger
-} from '../core/index.js';
-import { SourceExportItem } from '../export/index.js';
-import { ImportResult } from '../import/index.js';
+import type { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+import type { ExternalIdGenerator, Logger, ManagementClientConfig, MigrationData } from '../core/index.js';
+import { executeWithTrackingAsync, getDefaultLogger } from '../core/index.js';
+import type { SourceExportItem } from '../export/index.js';
+import type { ImportResult } from '../import/index.js';
 import { libMetadata } from '../metadata.js';
 import { exportAsync } from './export.js';
 import { importAsync } from './import.js';

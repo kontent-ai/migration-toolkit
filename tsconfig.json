@@ -1,16 +1,16 @@
 {
     "compileOnSave": true,
     "compilerOptions": {
-        "baseUrl": ".",
-        "outDir": "dist",
+        "noEmit": true,
+        "target": "es2022",
+        "moduleResolution": "nodenext",
+        "module": "NodeNext",
+        "importHelpers": true,
         "sourceMap": true,
         "declaration": true,
-        "moduleResolution": "NodeNext",
-        "module": "NodeNext",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
-        "target": "es2022",
         "strict": true,
         "strictNullChecks": true,
         "strictPropertyInitialization": true,
@@ -27,6 +27,6 @@
         "typeRoots": ["./node_modules/@types"],
         "lib": ["esnext"]
     },
-    "include": ["lib/**/*", "samples/**/*", "scripts/**/*"],
+    "include": ["lib/**/*", "tests/**/*", "eslint.config.mjs", "vitest.config.ts", "samples/**/*", "scripts/**/*", "tests/**/*"],
     "exclude": ["node_modules"]
 }

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { SourceExportItem } from '../export.models.js';
+import type { SourceExportItem } from '../export.models.js';
 
 export function throwErrorForItemRequest(itemRequest: SourceExportItem, message: string): never {
     throw Error(

@@ -1,7 +1,7 @@
-import { migrateAsync } from '../../../toolkit/index.js';
 import { confirmMigrateAsync, getDefaultLogger } from '../../../core/index.js';
-import { SourceExportItem } from '../../../export/index.js';
-import { CliArgumentsFetcher } from '../cli.models.js';
+import type { SourceExportItem } from '../../../export/index.js';
+import { migrateAsync } from '../../../toolkit/index.js';
+import type { CliArgumentsFetcher } from '../cli.models.js';
 
 export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Promise<void> {
     const log = getDefaultLogger();

@@ -1,6 +1,6 @@
 import { confirmImportAsync, defaultZipFilename, getDefaultLogger } from '../../../core/index.js';
 import { extractAsync, importAsync } from '../../../toolkit/index.js';
-import { CliArgumentsFetcher } from '../cli.models.js';
+import type { CliArgumentsFetcher } from '../cli.models.js';
 
 export async function importActionAsync(argsFetcher: CliArgumentsFetcher): Promise<void> {
     const log = getDefaultLogger();

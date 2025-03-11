@@ -1,4 +1,4 @@
-import {
+import type {
     AssetFolderModels,
     CollectionModels,
     ContentItemModels,
@@ -9,7 +9,7 @@ import {
     TaxonomyModels,
     WorkflowModels
 } from '@kontent-ai/management-sdk';
-import {
+import type {
     AssetStateInSourceEnvironmentById,
     FlattenedContentType,
     FlattenedContentTypeElement,

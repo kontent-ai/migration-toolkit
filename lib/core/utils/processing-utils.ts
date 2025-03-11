@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import pLimit from 'p-limit';
-import { ItemInfo, ItemProcessingResult } from '../models/core.models.js';
-import { LogSpinnerData, Logger } from '../models/log.models.js';
+import type { ItemInfo, ItemProcessingResult } from '../models/core.models.js';
+import type { LogSpinnerData, Logger } from '../models/log.models.js';
 
 type ProcessSetAction =
     | 'Fetching assets'

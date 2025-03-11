@@ -1,16 +1,14 @@
-import { ElementModels } from '@kontent-ai/management-sdk';
-import { GetFlattenedElementByIds } from 'lib/export/export.models.js';
+import type { ElementModels } from '@kontent-ai/management-sdk';
 import { match, P } from 'ts-pattern';
-import {
-    isArray,
-    isString,
+import type {
     MigrationElementModels,
     MigrationElements,
-    parseAsMigrationReferencesArray,
     ReferencedDataInLanguageVariants,
     ReferencedDataInMigrationItems
 } from '../../core/index.js';
-import { GetFlattenedElementByCodenames } from '../../import/index.js';
+import { isArray, isString, parseAsMigrationReferencesArray } from '../../core/index.js';
+import type { GetFlattenedElementByIds } from '../../export/export.models.js';
+import type { GetFlattenedElementByCodenames } from '../../import/index.js';
 import { richTextProcessor } from '../index.js';
 
 export interface ExtractItemById {

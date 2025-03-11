@@ -1,17 +1,8 @@
 import chalk from 'chalk';
-import { z } from 'zod';
-import {
-    Logger,
-    MigrationAsset,
-    MigrationData,
-    MigrationItem,
-    MigrationItemsSchema,
-    ZipMigrationAssetSchema,
-    ZipMigrationAssetsSchema,
-    getDefaultLogger,
-    mapAsync
-} from '../core/index.js';
-import { FileBinaryData, ZipPackager } from './zip.models.js';
+import type { z } from 'zod';
+import type { Logger, MigrationAsset, MigrationData, MigrationItem, ZipMigrationAssetSchema } from '../core/index.js';
+import { MigrationItemsSchema, ZipMigrationAssetsSchema, getDefaultLogger, mapAsync } from '../core/index.js';
+import type { FileBinaryData, ZipPackager } from './zip.models.js';
 
 type ZipAssetRecord = z.infer<typeof ZipMigrationAssetSchema>;
 

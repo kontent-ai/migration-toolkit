@@ -1,22 +1,18 @@
-import { ElementContracts, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
+import type { ElementContracts, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { match } from 'ts-pattern';
-import {
-    findRequired,
-    isNotUndefined,
+import type {
     LanguageVariantSchedulesStateValues,
     LanguageVariantStateInTargetEnvironmentByCodename,
     Logger,
     LogSpinnerData,
     MigrationElement,
     MigrationItem,
-    MigrationItemVersion,
-    processItemsAsync,
-    runMapiRequestAsync,
-    workflowHelper
+    MigrationItemVersion
 } from '../../core/index.js';
+import { findRequired, isNotUndefined, processItemsAsync, runMapiRequestAsync, workflowHelper } from '../../core/index.js';
 import { importTransforms } from '../../translation/index.js';
-import { ImportContext, ImportedItem, ImportedLanguageVariant } from '../import.models.js';
+import type { ImportContext, ImportedItem, ImportedLanguageVariant } from '../import.models.js';
 import { throwErrorForMigrationItem } from '../utils/import.utils.js';
 import { workflowImporter as workflowImporterInit } from './workflow-importer.js';
 

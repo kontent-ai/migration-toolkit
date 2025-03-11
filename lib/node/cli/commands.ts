@@ -4,9 +4,7 @@ export const cliArgs = argumentsSetter()
     .withCommand({
         name: 'export',
         description: 'Exports content (items & assets) from Kontent.ai environment',
-        examples: [
-            `kontent-ai-migration-toolkit export --sourceEnvironmentId=x --sourceApiKey=x --language=default --items=itemA,itemB`
-        ],
+        examples: [`kontent-ai-migration-toolkit export --sourceEnvironmentId=x --sourceApiKey=x --language=default --items=itemA,itemB`],
         options: [
             {
                 name: `sourceApiKey`,
@@ -95,8 +93,7 @@ export const cliArgs = argumentsSetter()
 
     .withCommand({
         name: 'migrate',
-        description:
-            'Migrates content (items & assets) from one Kontent.ai environment into another Kontent.ai environment',
+        description: 'Migrates content (items & assets) from one Kontent.ai environment into another Kontent.ai environment',
         examples: [
             `kontent-ai-migration-toolkit migrate --targetEnvironmentId=x --targetApiKey=x --sourceEnvironmentId=x --sourceApiKey=x --language=default --items=itemA,itemB`
         ],

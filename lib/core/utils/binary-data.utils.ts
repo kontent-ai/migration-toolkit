@@ -1,4 +1,4 @@
-import { FileBinaryData } from '../../zip/index.js';
+import type { FileBinaryData } from '../../zip/index.js';
 import { defaultHttpService, defaultRetryStrategy } from './http.utils.js';
 
 export async function getBinaryDataFromUrlAsync(url: string): Promise<{ readonly data: FileBinaryData; readonly contentLength: number }> {

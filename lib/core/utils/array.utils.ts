@@ -1,4 +1,4 @@
-import { MigrationElementValue, MigrationReference } from '../models/migration.models.js';
+import type { MigrationElementValue, MigrationReference } from '../models/migration.models.js';
 import { isArray, isString } from './global.utils.js';
 
 export function parseAsMigrationReferencesArray(value: MigrationElementValue): readonly MigrationReference[] {

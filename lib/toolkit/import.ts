@@ -1,7 +1,8 @@
 import chalk from 'chalk';
 import { writeFile } from 'fs/promises';
 import { executeWithTrackingAsync } from '../core/index.js';
-import { ImportConfig, ImportResult, importManager as _importManager } from '../import/index.js';
+import type { ImportConfig, ImportResult } from '../import/index.js';
+import { importManager as _importManager } from '../import/index.js';
 import { libMetadata } from '../metadata.js';
 
 export async function importAsync(config: ImportConfig): Promise<ImportResult> {

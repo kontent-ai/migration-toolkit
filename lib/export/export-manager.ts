@@ -1,29 +1,31 @@
-import { AssetFolderModels, AssetModels, CollectionModels, ElementModels } from '@kontent-ai/management-sdk';
+import type { AssetFolderModels, AssetModels, CollectionModels, ElementModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
-import {
-    extractErrorData,
-    findRequired,
+import type {
     FlattenedContentType,
     FlattenedContentTypeElement,
-    getBinaryDataFromUrlAsync,
-    getDefaultLogger,
-    getMigrationManagementClient,
-    isNotUndefined,
     MigrationAsset,
-    MigrationAssetsSchema,
     MigrationComponent,
     MigrationData,
     MigrationElements,
     MigrationElementTransformData,
     MigrationItem,
-    MigrationItemsSchema,
     MigrationItemVersion,
-    processItemsAsync,
     Writeable
+} from '../core/index.js';
+import {
+    extractErrorData,
+    findRequired,
+    getBinaryDataFromUrlAsync,
+    getDefaultLogger,
+    getMigrationManagementClient,
+    isNotUndefined,
+    MigrationAssetsSchema,
+    MigrationItemsSchema,
+    processItemsAsync
 } from '../core/index.js';
 import { exportTransforms } from '../translation/index.js';
 import { exportContextFetcherAsync } from './context/export-context-fetcher.js';
-import { ExportConfig, ExportContext, ExportItem } from './export.models.js';
+import type { ExportConfig, ExportContext, ExportItem } from './export.models.js';
 
 export function exportManager(config: ExportConfig) {
     const logger = config.logger ?? getDefaultLogger();

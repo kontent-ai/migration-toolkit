@@ -1,7 +1,8 @@
-import { ContentItemModels, ManagementClient } from '@kontent-ai/management-sdk';
+import type { ContentItemModels, ManagementClient } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
-import { LogSpinnerData, Logger, MigrationItem, findRequired, processItemsAsync, runMapiRequestAsync } from '../../core/index.js';
-import { ImportContext, ImportedItem } from '../import.models.js';
+import type { LogSpinnerData, Logger, MigrationItem } from '../../core/index.js';
+import { findRequired, processItemsAsync, runMapiRequestAsync } from '../../core/index.js';
+import type { ImportContext, ImportedItem } from '../import.models.js';
 
 export function contentItemsImporter(data: {
     readonly logger: Logger;

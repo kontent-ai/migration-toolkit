@@ -1,4 +1,4 @@
-import { CliAction } from '../../core/index.js';
+import type { CliAction } from '../../core/index.js';
 
 export interface Command {
     readonly name: string;

@@ -1,12 +1,8 @@
-import { LanguageVariantElements, LanguageVariantElementsBuilder, SharedContracts } from '@kontent-ai/management-sdk';
-import {
-    isString,
-    MigrationElementTransformData,
-    MigrationElementType,
-    MigrationItem,
-    parseAsMigrationReferencesArray
-} from '../../core/index.js';
-import { ImportContext, ImportTransformFunc } from '../../import/index.js';
+import type { LanguageVariantElements, SharedContracts } from '@kontent-ai/management-sdk';
+import { LanguageVariantElementsBuilder } from '@kontent-ai/management-sdk';
+import type { MigrationElementTransformData, MigrationElementType, MigrationItem } from '../../core/index.js';
+import { isString, parseAsMigrationReferencesArray } from '../../core/index.js';
+import type { ImportContext, ImportTransformFunc } from '../../import/index.js';
 import { richTextProcessor } from '../helpers/rich-text.processor.js';
 
 const elementsBuilder = new LanguageVariantElementsBuilder();

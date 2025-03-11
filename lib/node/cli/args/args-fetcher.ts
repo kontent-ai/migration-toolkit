@@ -1,9 +1,10 @@
+import chalk from 'chalk';
+import { match } from 'ts-pattern';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import chalk from 'chalk';
-import { CliAction, exitProgram, LiteralUnion } from '../../../core/index.js';
-import { CliArgumentsFetcher } from '../cli.models.js';
-import { match } from 'ts-pattern';
+import type { CliAction, LiteralUnion } from '../../../core/index.js';
+import { exitProgram } from '../../../core/index.js';
+import type { CliArgumentsFetcher } from '../cli.models.js';
 
 type ArgvResult = {
     [x: string]: unknown;

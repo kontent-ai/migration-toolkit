@@ -1,15 +1,8 @@
-import { ContentTypeElements, TaxonomyModels } from '@kontent-ai/management-sdk';
+import type { ContentTypeElements, TaxonomyModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
-import {
-    MigrationElementTransformData,
-    MigrationElementType,
-    MigrationReference,
-    isNotUndefined,
-    isString,
-    findRequired,
-    isArray
-} from '../../core/index.js';
-import { ExportContext, ExportElement, ExportTransformFunc } from '../../export/index.js';
+import type { MigrationElementTransformData, MigrationElementType, MigrationReference } from '../../core/index.js';
+import { findRequired, isArray, isNotUndefined, isString } from '../../core/index.js';
+import type { ExportContext, ExportElement, ExportTransformFunc } from '../../export/index.js';
 import { richTextProcessor } from '../helpers/rich-text.processor.js';
 
 export const exportTransforms: Readonly<Record<MigrationElementType, ExportTransformFunc>> = {

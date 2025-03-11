@@ -5,7 +5,7 @@
     "preferGlobal": true,
     "private": false,
     "bin": {
-        "kontent-ai-migration-toolkit": "./dist/es2022/node/cli/app.js"
+        "kontent-ai-migration-toolkit": "./dist/node/cli/app.js"
     },
     "repository": {
         "type": "git",
@@ -15,10 +15,9 @@
         "node": ">=20"
     },
     "author": "Richard Sustek",
-    "exports": "./dist/es2022/index.js",
-    "types": "./dist/es2022/index.d.ts",
+    "exports": "./dist/index.js",
+    "types": "./dist/index.d.ts",
     "type": "module",
-    "directories": {},
     "scripts": {
         "test": "npm run test:unit",
         "release": "npm run lint && standard-version && npm run update:version",
@@ -27,8 +26,7 @@
         "release:beta": "standard-version --prerelease && npm run update:version",
         "prepublishOnly": "npm run lint && npm run build && npm run push:tags",
         "publish:beta": "npm publish --tag=next",
-        "build:es2022": "tsc --p tsconfig.es2022.json",
-        "build": "npm run clean && npm run lint && npm run build:es2022",
+        "build": "npm run clean && npm run lint:fix && tsc --p tsconfig.build.json",
         "test:migrate": "cd scripts/test && tsx test-migrate.ts",
         "test:import": "cd scripts/test && tsx test-import.ts",
         "test:export": "cd scripts/test && tsx test-export.ts",

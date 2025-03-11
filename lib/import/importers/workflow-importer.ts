@@ -1,15 +1,8 @@
-import { LanguageVariantModels, ManagementClient, SharedModels, WorkflowModels } from '@kontent-ai/management-sdk';
+import type { LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
+import { SharedModels } from '@kontent-ai/management-sdk';
 import { match } from 'ts-pattern';
-import {
-    Logger,
-    LogSpinnerData,
-    MigrationItem,
-    MigrationItemVersion,
-    runMapiRequestAsync,
-    ShortestPathResult,
-    workflowHelper as workflowHelperInit,
-    WorkflowStep
-} from '../../core/index.js';
+import type { Logger, LogSpinnerData, MigrationItem, MigrationItemVersion, ShortestPathResult, WorkflowStep } from '../../core/index.js';
+import { runMapiRequestAsync, workflowHelper as workflowHelperInit } from '../../core/index.js';
 
 export function workflowImporter(config: {
     readonly logger: Logger;

@@ -1,4 +1,4 @@
-import {
+import type {
     AssetModels,
     CollectionModels,
     ContentItemModels,
@@ -7,20 +7,22 @@ import {
     WorkflowModels
 } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
-import {
+import type {
     AssetStateInSourceEnvironmentById,
-    findRequired,
     FlattenedContentType,
-    is404Error,
     ItemStateInSourceEnvironmentById,
-    LogSpinnerData,
+    LogSpinnerData
+} from '../../core/index.js';
+import {
+    findRequired,
+    is404Error,
     managementClientUtils,
     processItemsAsync,
     runMapiRequestAsync,
     workflowHelper
 } from '../../core/index.js';
 import { itemsExtractionProcessor } from '../../translation/index.js';
-import {
+import type {
     DefaultExportContextConfig,
     ExportContext,
     ExportContextEnvironmentData,

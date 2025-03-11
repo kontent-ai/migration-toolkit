@@ -1,9 +1,10 @@
 import { Buffer as BufferProxy } from 'buffer';
 import chalk from 'chalk';
-import JSZip from 'jszip';
+import type JSZip from 'jszip';
 import { match } from 'ts-pattern';
-import { Logger, exitProgram, formatBytes, getCurrentEnvironment, getDefaultLogger } from '../core/index.js';
-import { FileBinaryData, ZipCompressionLevel, ZipPackager } from './zip.models.js';
+import type { Logger } from '../core/index.js';
+import { exitProgram, formatBytes, getCurrentEnvironment, getDefaultLogger } from '../core/index.js';
+import type { FileBinaryData, ZipCompressionLevel, ZipPackager } from './zip.models.js';
 
 type ZipOutputType = 'nodebuffer' | 'blob';
 

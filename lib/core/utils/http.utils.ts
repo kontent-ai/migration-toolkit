@@ -1,6 +1,7 @@
-import { HttpService, IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+import type { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
+import { HttpService } from '@kontent-ai/core-sdk';
 import { match } from 'ts-pattern';
-import { OriginalManagementError } from '../models/core.models.js';
+import type { OriginalManagementError } from '../models/core.models.js';
 
 const rateExceededErrorCode: number = 10000;
 

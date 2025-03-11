@@ -1,7 +1,7 @@
-import { Buffer as BufferProxy } from 'buffer';
+import type { Buffer as BufferProxy } from 'buffer';
 import chalk from 'chalk';
 import { promises } from 'fs';
-import { Logger } from '../core/index.js';
+import type { Logger } from '../core/index.js';
 
 export function fileManager(logger: Logger) {
     const getFilePath = (filename: string): string => {

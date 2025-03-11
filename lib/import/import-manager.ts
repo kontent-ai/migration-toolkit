@@ -1,8 +1,9 @@
-import { ManagementClient } from '@kontent-ai/management-sdk';
+import type { ManagementClient } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
-import { defaultExternalIdGenerator, extractErrorData, getDefaultLogger, getMigrationManagementClient, Logger } from '../core/index.js';
+import type { Logger } from '../core/index.js';
+import { defaultExternalIdGenerator, extractErrorData, getDefaultLogger, getMigrationManagementClient } from '../core/index.js';
 import { importContextFetcherAsync } from './context/import-context-fetcher.js';
-import { ImportConfig, ImportContext, ImportedItem, ImportedLanguageVariant, ImportResult } from './import.models.js';
+import type { ImportConfig, ImportContext, ImportedItem, ImportedLanguageVariant, ImportResult } from './import.models.js';
 import { assetsImporter } from './importers/assets-importer.js';
 import { contentItemsImporter } from './importers/content-items-importer.js';
 import { languageVariantImporter } from './importers/language-variant-importer.js';

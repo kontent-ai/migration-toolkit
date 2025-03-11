@@ -1,6 +1,7 @@
-import { AssetFolderModels, AssetModels, CollectionModels, LanguageModels } from '@kontent-ai/management-sdk';
+import type { AssetFolderModels, AssetModels, CollectionModels, LanguageModels } from '@kontent-ai/management-sdk';
 import deepEqual from 'deep-equal';
-import { MigrationAsset, MigrationAssetDescription, findRequired, geSizeInBytes } from '../../core/index.js';
+import type { MigrationAsset, MigrationAssetDescription } from '../../core/index.js';
+import { findRequired, geSizeInBytes } from '../../core/index.js';
 
 export function shouldUpdateAsset(data: {
     readonly migrationAsset: MigrationAsset;

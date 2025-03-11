@@ -1,4 +1,4 @@
-import { AssetStateInTargetEnvironmentByCodename, ItemStateInTargetEnvironmentByCodename } from 'lib/core/index.js';
+import type { AssetStateInTargetEnvironmentByCodename, ItemStateInTargetEnvironmentByCodename } from '../../core/index.js';
 
 export type CodenameReplaceFunc<T> = (codename: string) => T;
 export type IdReplaceFunc = (id: string) => { codename: string };

@@ -1,5 +1,6 @@
 import { Buffer as BufferProxy } from 'buffer';
-import { defaultZipFilename, executeWithTrackingAsync, getDefaultLogger, Logger, MigrationData } from '../core/index.js';
+import type { Logger, MigrationData } from '../core/index.js';
+import { defaultZipFilename, executeWithTrackingAsync, getDefaultLogger } from '../core/index.js';
 import { fileManager } from '../file/index.js';
 import { libMetadata } from '../metadata.js';
 import { zipManager } from '../zip/index.js';

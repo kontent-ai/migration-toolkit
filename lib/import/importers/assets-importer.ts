@@ -1,19 +1,10 @@
-import { AssetModels, LanguageModels, ManagementClient, SharedContracts } from '@kontent-ai/management-sdk';
+import type { AssetModels, LanguageModels, ManagementClient, SharedContracts } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import mime from 'mime';
-import {
-    geSizeInBytes,
-    isNotUndefined,
-    Logger,
-    LogSpinnerData,
-    MigrationAsset,
-    MigrationAssetDescription,
-    MigrationReference,
-    processItemsAsync,
-    runMapiRequestAsync
-} from '../../core/index.js';
+import type { Logger, LogSpinnerData, MigrationAsset, MigrationAssetDescription, MigrationReference } from '../../core/index.js';
+import { geSizeInBytes, isNotUndefined, processItemsAsync, runMapiRequestAsync } from '../../core/index.js';
 import { shouldReplaceBinaryFile, shouldUpdateAsset } from '../comparers/asset-comparer.js';
-import { AssetToEdit, EditedAsset, ImportContext, ImportedAsset, ImportResult } from '../import.models.js';
+import type { AssetToEdit, EditedAsset, ImportContext, ImportedAsset, ImportResult } from '../import.models.js';
 
 export function assetsImporter(data: {
     readonly logger: Logger;
