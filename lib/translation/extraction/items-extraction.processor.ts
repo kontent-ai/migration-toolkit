@@ -45,24 +45,24 @@ export function itemsExtractionProcessor() {
 
                     match(typeElement.type)
                         .with('rich_text', () => {
-                            const rteValue = itemElement.value && isString(itemElement.value) ? itemElement.value : undefined;
+                            const rteValue = itemElement.value && isString(itemElement.value) ? itemElement.value : '';
 
                             // extract referenced items
                             richTextProcessor()
-                                .processDataIds(rteValue ?? '')
+                                .processDataIds(rteValue)
                                 .ids.forEach((id) => extractedIds.itemIds.add(id));
 
                             richTextProcessor()
-                                .processLinkItemIds(rteValue ?? '')
+                                .processLinkItemIds(rteValue)
                                 .ids.forEach((id) => extractedIds.itemIds.add(id));
 
                             // extract referenced assets
                             richTextProcessor()
-                                .processAssetIds(rteValue ?? '')
+                                .processAssetIds(rteValue)
                                 .ids.forEach((id) => extractedIds.assetIds.add(id));
 
                             richTextProcessor()
-                                .processLinkAssetIds(rteValue ?? '')
+                                .processLinkAssetIds(rteValue)
                                 .ids.forEach((id) => extractedIds.assetIds.add(id));
 
                             // recursively extract data from components as well because they may reference additional assets & content items

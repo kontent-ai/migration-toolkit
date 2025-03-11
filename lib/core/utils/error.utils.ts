@@ -49,10 +49,11 @@ export function extractErrorData(error: unknown): ErrorData {
             }
         )
         .otherwise((error) => {
+            console.error('Unknown error:', error);
             return {
                 isUnknownError: true,
                 error: error,
-                message: `Unknown error`
+                message: `Unknown error. Check the console log for more details.`
             };
         });
 }
