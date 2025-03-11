@@ -167,7 +167,7 @@ export function importManager(config: ImportConfig) {
                             codename: m.inputItem.system.codename,
                             language: m.inputItem.system.language,
                             type: m.inputItem.system.type,
-                            error: extractErrorData(m.state === 'error').message
+                            error: extractErrorData(m.error).message
                         };
                     })
             }
@@ -175,7 +175,7 @@ export function importManager(config: ImportConfig) {
     };
 
     const printReportToConsole = (reportResult: ReportResult, logger: Logger): void => {
-        const errors = [
+        const errors: readonly string[][] = [
             ...reportResult.assets.failed.map((m) => [
                 `Object type: ${chalk.yellow('Asset')}`,
                 `Codename: ${chalk.yellow(m.codename)}`,
