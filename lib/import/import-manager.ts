@@ -118,7 +118,7 @@ export function importManager(config: ImportConfig) {
                         .map((m) => {
                             return {
                                 codename: m.inputItem.codename,
-                                error: extractErrorData(m.state === 'error').message
+                                error: extractErrorData(m.error).message
                             };
                         }),
                     ...importResult.editedAssets
@@ -126,7 +126,7 @@ export function importManager(config: ImportConfig) {
                         .map((m) => {
                             return {
                                 codename: m.inputItem.migrationAsset.codename,
-                                error: extractErrorData(m.state === 'error').message
+                                error: extractErrorData(m.error).message
                             };
                         })
                 ]
@@ -146,7 +146,7 @@ export function importManager(config: ImportConfig) {
                         return {
                             codename: m.inputItem.system.codename,
                             type: m.inputItem.system.type,
-                            error: extractErrorData(m.state === 'error').message
+                            error: extractErrorData(m.error).message
                         };
                     })
             },
