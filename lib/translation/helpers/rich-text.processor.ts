@@ -32,10 +32,10 @@ const attributes = {
 
 const rteRegexes = {
     elements: {
-        objectTagRegex: new RegExp(`<object(.+?)</object>`, 'g'),
-        imgTagRegex: new RegExp(`<img(.+?)</img>`, 'g'),
-        figureTagRegex: new RegExp(`<figure(.+?)</figure>`, 'g'),
-        linkTagRegex: new RegExp(`<a([\\s\\S]*)</a>`, 'gm')
+        objectTagRegex: new RegExp(`<object(.+?)</object>`, 'gs'),
+        imgTagRegex: new RegExp(`<img(.+?)</img>`, 'gs'),
+        figureTagRegex: new RegExp(`<figure(.+?)</figure>`, 'gs'),
+        linkTagRegex: new RegExp(`<a(.+?)</a>`, 'gs')
     },
     ids: {
         dataItemIdAttrRegex: new RegExp(`${attributes.ids.itemIdAttributeName}=\\"(.+?)\\"`),
@@ -53,14 +53,7 @@ export function richTextProcessor() {
     const processDataIds = (richTextHtml: string, replaceFunc?: IdReplaceFunc): ProcessIdsResult => {
         const itemIds = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                html: richTextHtml,
-                ids: itemIds
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.objectTagRegex, (objectTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.objectTagRegex, (objectTag) => {
             // skip processing for components
             if (objectTag.includes(attributes.componentIdentifierAttribute)) {
                 return objectTag;
@@ -85,7 +78,7 @@ export function richTextProcessor() {
         });
 
         return {
-            html: richTextHtml,
+            html: processedRte,
             ids: itemIds
         };
     };
@@ -93,14 +86,7 @@ export function richTextProcessor() {
     const processAssetIds = (richTextHtml: string, replaceFunc?: IdReplaceFunc): ProcessIdsResult => {
         const assetIds = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                html: richTextHtml,
-                ids: assetIds
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.figureTagRegex, (figureTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.figureTagRegex, (figureTag) => {
             const assetIdMatch = figureTag.match(rteRegexes.ids.dataAssetIdAttrRegex);
             if (assetIdMatch && (assetIdMatch?.length ?? 0) >= 2) {
                 const assetId = assetIdMatch[1];
@@ -121,7 +107,7 @@ export function richTextProcessor() {
         });
 
         return {
-            html: richTextHtml,
+            html: processedRte,
             ids: assetIds
         };
     };
@@ -129,14 +115,7 @@ export function richTextProcessor() {
     const processLinkAssetIds = (richTextHtml: string, replaceFunc?: IdReplaceFunc): ProcessIdsResult => {
         const assetIds = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                html: richTextHtml,
-                ids: assetIds
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
             const assetIdMatch = linkTag.match(rteRegexes.ids.dataAssetIdAttrRegex);
             if (assetIdMatch && (assetIdMatch?.length ?? 0) >= 2) {
                 const assetId = assetIdMatch[1];
@@ -157,7 +136,7 @@ export function richTextProcessor() {
         });
 
         return {
-            html: richTextHtml,
+            html: processedRte,
             ids: assetIds
         };
     };
@@ -165,14 +144,7 @@ export function richTextProcessor() {
     const processLinkItemIds = (richTextHtml: string, replaceFunc?: IdReplaceFunc): ProcessIdsResult => {
         const linkItemIds = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                html: richTextHtml,
-                ids: linkItemIds
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
             const itemIdMatch = linkTag.match(rteRegexes.ids.dataItemIdAttrRegex);
             if (itemIdMatch && (itemIdMatch?.length ?? 0) >= 2) {
                 const itemId = itemIdMatch[1];
@@ -192,7 +164,7 @@ export function richTextProcessor() {
         });
 
         return {
-            html: richTextHtml,
+            html: processedRte,
             ids: linkItemIds
         };
     };
@@ -203,14 +175,7 @@ export function richTextProcessor() {
     ): ProcessCodenamesResult => {
         const itemCodenames = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                codenames: itemCodenames,
-                html: richTextHtml
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.objectTagRegex, (objectTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.objectTagRegex, (objectTag) => {
             const codenameMatch = objectTag.match(rteRegexes.codenames.rteItemCodenameRegex);
             if (codenameMatch && (codenameMatch?.length ?? 0) >= 2) {
                 const codename = codenameMatch[1];
@@ -237,7 +202,7 @@ export function richTextProcessor() {
 
         return {
             codenames: itemCodenames,
-            html: richTextHtml
+            html: processedRte
         };
     };
 
@@ -247,14 +212,7 @@ export function richTextProcessor() {
     ): ProcessCodenamesResult => {
         const itemCodenames = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                codenames: itemCodenames,
-                html: richTextHtml
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
             const codenameMatch = linkTag.match(rteRegexes.codenames.rteLinkItemCodenameRegex);
             if (codenameMatch && (codenameMatch?.length ?? 0) >= 2) {
                 const codename = codenameMatch[1];
@@ -279,7 +237,7 @@ export function richTextProcessor() {
 
         return {
             codenames: itemCodenames,
-            html: richTextHtml
+            html: processedRte
         };
     };
 
@@ -289,14 +247,7 @@ export function richTextProcessor() {
     ): ProcessCodenamesResult => {
         const assetCodenames = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                codenames: assetCodenames,
-                html: richTextHtml
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.figureTagRegex, (figureTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.figureTagRegex, (figureTag) => {
             const codenameMatch = figureTag.match(rteRegexes.codenames.rteAssetCodenameRegex);
             if (codenameMatch && (codenameMatch?.length ?? 0) >= 2) {
                 const codename = codenameMatch[1];
@@ -321,7 +272,7 @@ export function richTextProcessor() {
 
         return {
             codenames: assetCodenames,
-            html: richTextHtml
+            html: processedRte
         };
     };
 
@@ -331,14 +282,7 @@ export function richTextProcessor() {
     ): ProcessCodenamesResult => {
         const assetCodenames = new Set<string>();
 
-        if (!richTextHtml) {
-            return {
-                codenames: assetCodenames,
-                html: richTextHtml
-            };
-        }
-
-        richTextHtml = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
+        const processedRte = richTextHtml.replaceAll(rteRegexes.elements.linkTagRegex, (linkTag) => {
             const codenameMatch = linkTag.match(rteRegexes.codenames.rteAssetCodenameRegex);
             if (codenameMatch && (codenameMatch?.length ?? 0) >= 2) {
                 const codename = codenameMatch[1];
@@ -363,7 +307,7 @@ export function richTextProcessor() {
 
         return {
             codenames: assetCodenames,
-            html: richTextHtml
+            html: processedRte
         };
     };
 
