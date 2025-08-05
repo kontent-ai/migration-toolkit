@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.8.1](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.8.0...v2.8.1) (2025-08-05)
+
+
+### Bug Fixes
+
+* makes value of element optional ([16536a3](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/commit/16536a33e65329d107c2674991f244823c518006))
+
 ## [2.8.0](https://github.com/Kontent-ai/kontent-ai-migration-toolkit/compare/v2.7.0...v2.8.0) (2025-04-30)
 
 
