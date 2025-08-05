@@ -97,7 +97,7 @@ export const MigrationElementValueSchema = z.union([z.string(), z.undefined(), z
 export const MigrationElementSchema = z
     .strictObject({
         type: MigrationElementTypeSchema,
-        value: MigrationElementValueSchema,
+        value: MigrationElementValueSchema.optional(),
         display_timezone: z.string().optional(),
         components: z.array(MigrationComponentSchema).readonly().optional(),
         mode: MigrationUrlSlugModeSchema.optional()
