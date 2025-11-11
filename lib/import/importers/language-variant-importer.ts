@@ -1,4 +1,4 @@
-import type { ElementContracts, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
+import type { LanguageVariantElements, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { match } from 'ts-pattern';
 import type {
@@ -280,7 +280,7 @@ export function languageVariantImporter(config: {
         migrationItem: MigrationItem,
         element: MigrationElement,
         elementCodename: string
-    ): Readonly<ElementContracts.IContentItemElementContract> => {
+    ): Readonly<LanguageVariantElements.ILanguageVariantElementBase> => {
         const importTransformResult = importTransforms[
             config.importContext.getElement(migrationItem.system.type.codename, elementCodename, element.type).type
         ]({
