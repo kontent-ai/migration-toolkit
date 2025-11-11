@@ -139,7 +139,7 @@ export function exportManager(config: ExportConfig) {
                     components: data.exportElement.components.map((component) => mapToMigrationComponent(data.context, component)),
                     value: data.exportElement.value,
                     urlSlugMode: data.exportElement.mode,
-                    displayTimezone: data.exportElement.display_timezone ?? undefined
+                    displayTimezone: data.exportElement.display_timezone
                 }
             });
         } catch (error) {
