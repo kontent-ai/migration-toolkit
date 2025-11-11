@@ -1,4 +1,4 @@
-import type { ElementContracts, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
+import type { LanguageVariantElements, LanguageVariantModels, ManagementClient, WorkflowModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
 import { match } from 'ts-pattern';
 import type {
@@ -174,11 +174,11 @@ export function languageVariantImporter(config: {
         // first import published version if it exists
         const publishedLanguageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined = publishedVersion
             ? await importVersionAsync({
-                  logSpinner: logSpinner,
-                  migrationItem: migrationItem,
-                  preparedContentItem: preparedContentItem,
-                  migrationItemVersion: publishedVersion
-              })
+                logSpinner: logSpinner,
+                migrationItem: migrationItem,
+                preparedContentItem: preparedContentItem,
+                migrationItemVersion: publishedVersion
+            })
             : undefined;
 
         // if target env contains published version & imported version not, unpublish it from the target env
@@ -194,12 +194,12 @@ export function languageVariantImporter(config: {
         }
         const draftLanguageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined = draftVersion
             ? await importVersionAsync({
-                  logSpinner: logSpinner,
-                  migrationItem: migrationItem,
-                  preparedContentItem: preparedContentItem,
-                  migrationItemVersion: draftVersion,
-                  createNewVersion: publishedLanguageVariant ? true : false
-              })
+                logSpinner: logSpinner,
+                migrationItem: migrationItem,
+                preparedContentItem: preparedContentItem,
+                migrationItemVersion: draftVersion,
+                createNewVersion: publishedLanguageVariant ? true : false
+            })
             : undefined;
 
         return [publishedLanguageVariant, draftLanguageVariant].filter(isNotUndefined);
@@ -224,7 +224,7 @@ export function languageVariantImporter(config: {
                 // cancel scheduled unpublish if language variant is scheduled to be unpublished
                 await workflowImporter.cancelScheduledUnpublishAsync(changeWorkflowData);
             })
-            .otherwise(() => {});
+            .otherwise(() => { });
     };
 
     const prepareTargetEnvironmentVariantForImportAsync = async (data: {
@@ -269,7 +269,7 @@ export function languageVariantImporter(config: {
                 // move to draft step if language variant is archived
                 await workflowImporter.moveToDraftStepAsync(changeWorkflowData);
             })
-            .otherwise(() => {});
+            .otherwise(() => { });
     };
 
     const isPublishedWorkflowStep = (stepCodename: string, workflow: Readonly<WorkflowModels.Workflow>): boolean => {
@@ -280,7 +280,7 @@ export function languageVariantImporter(config: {
         migrationItem: MigrationItem,
         element: MigrationElement,
         elementCodename: string
-    ): Readonly<ElementContracts.IContentItemElementContract> => {
+    ): Readonly<LanguageVariantElements.ILanguageVariantElementBase> => {
         const importTransformResult = importTransforms[
             config.importContext.getElement(migrationItem.system.type.codename, elementCodename, element.type).type
         ]({

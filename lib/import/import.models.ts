@@ -3,8 +3,8 @@ import type {
     AssetModels,
     CollectionModels,
     ContentItemModels,
-    ElementContracts,
     LanguageModels,
+    LanguageVariantElements,
     LanguageVariantModels,
     ManagementClient,
     WorkflowModels
@@ -71,7 +71,7 @@ export type ImportTransformFunc = (data: {
     readonly elementCodename: string;
     readonly importContext: ImportContext;
     readonly migrationItems: readonly MigrationItem[];
-}) => ElementContracts.IContentItemElementContract;
+}) => LanguageVariantElements.ILanguageVariantElementBase;
 
 export interface ImportConfig extends ManagementClientConfig {
     readonly data: MigrationData;
