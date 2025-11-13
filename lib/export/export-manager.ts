@@ -242,7 +242,7 @@ export function exportManager(config: ExportConfig) {
                     exportItems: config.exportItems,
                     logger: logger,
                     managementClient: managementClient,
-                    tolerateMissingReferences: config.exportOptions?.tolerateMissingReferences ?? false
+                    tolerateMissingReferences: config.tolerateMissingReferences ?? false
                 })
             ).getExportContextAsync();
 

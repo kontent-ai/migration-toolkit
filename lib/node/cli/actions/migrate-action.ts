@@ -42,9 +42,7 @@ export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Prom
             environmentId: sourceEnvironmentId,
             apiKey: sourceApiKey,
             items: migrateItems,
-            exportOptions: {
-                tolerateMissingReferences: tolerateMissingReferences
-            }
+            tolerateMissingReferences: tolerateMissingReferences
         },
         targetEnvironment: {
             environmentId: targetEnvironmentId,

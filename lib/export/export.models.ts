@@ -53,7 +53,7 @@ export interface ExportContext {
     readonly getAssetStateInSourceEnvironment: (id: string) => AssetStateInSourceEnvironmentById;
     readonly exportItems: readonly ExportItem[];
     readonly getElement: GetFlattenedElementByIds;
-    readonly exportOptions: ExportOptions;
+    readonly exportContextOptions: ExportContextOptions;
 }
 
 export interface SourceExportItem {
@@ -61,7 +61,7 @@ export interface SourceExportItem {
     readonly languageCodename: string;
 }
 
-export interface ExportOptions {
+export interface ExportContextOptions {
     /**
      * When enabled, the export process will skip missing items and assets instead of throwing errors.
      * Missing references will be filtered out from the exported data.
@@ -73,7 +73,12 @@ export interface ExportOptions {
 export interface ExportConfig extends ManagementClientConfig {
     readonly exportItems: readonly SourceExportItem[];
     readonly logger?: Logger;
-    readonly exportOptions?: ExportOptions;
+    /**
+     * When enabled, the export process will skip missing items and assets instead of throwing errors.
+     * Missing references will be filtered out from the exported data.
+     * Default: false
+     */
+    readonly tolerateMissingReferences?: boolean;
 }
 
 export interface DefaultExportContextConfig {

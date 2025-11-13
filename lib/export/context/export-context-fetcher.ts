@@ -430,7 +430,7 @@ export async function exportContextFetcherAsync(config: DefaultExportContextConf
             exportItems: preparedItems,
             environmentData: environmentData,
             referencedData: referencedData,
-            exportOptions: {
+            exportContextOptions: {
                 tolerateMissingReferences: config.tolerateMissingReferences ?? false
             },
             getAssetStateInSourceEnvironment: (id) =>

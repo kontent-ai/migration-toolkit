@@ -34,9 +34,7 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
                 languageCodename: language
             };
         }),
-        exportOptions: {
-            tolerateMissingReferences: tolerateMissingReferences
-        }
+        tolerateMissingReferences: tolerateMissingReferences
     });
 
     await storeAsync({

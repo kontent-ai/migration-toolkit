@@ -10,7 +10,7 @@ function createMockContext(
     assetStates: Map<string, { asset?: { codename: string } }>
 ): ExportContext {
     return {
-        exportOptions: {
+        exportContextOptions: {
             tolerateMissingReferences
         },
         getItemStateInSourceEnvironment: (id: string) => {
