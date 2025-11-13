@@ -10,6 +10,7 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
     const items = cliFetcher.getRequiredArgumentValue('items').split(',');
     const baseUrl = cliFetcher.getOptionalArgumentValue('baseUrl');
     const force = cliFetcher.getBooleanArgumentValue('force', false);
+    const tolerateMissingReferences = cliFetcher.getBooleanArgumentValue('tolerateMissingReferences', false);
     const filename = cliFetcher.getOptionalArgumentValue('filename') ?? defaultZipFilename;
 
     await confirmExportAsync({
@@ -32,7 +33,10 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
                 itemCodename: m,
                 languageCodename: language
             };
-        })
+        }),
+        exportOptions: {
+            tolerateMissingReferences: tolerateMissingReferences
+        }
     });
 
     await storeAsync({

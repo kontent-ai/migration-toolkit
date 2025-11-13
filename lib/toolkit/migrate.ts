@@ -1,7 +1,7 @@
 import type { IRetryStrategyOptions } from '@kontent-ai/core-sdk';
 import type { ExternalIdGenerator, Logger, ManagementClientConfig, MigrationData } from '../core/index.js';
 import { executeWithTrackingAsync, getDefaultLogger } from '../core/index.js';
-import type { SourceExportItem } from '../export/index.js';
+import type { ExportOptions, SourceExportItem } from '../export/index.js';
 import type { ImportResult } from '../import/index.js';
 import { libMetadata } from '../metadata.js';
 import { exportAsync } from './export.js';
@@ -9,6 +9,7 @@ import { importAsync } from './import.js';
 
 export interface MigrationSource extends ManagementClientConfig {
     readonly items: readonly SourceExportItem[];
+    readonly exportOptions?: ExportOptions;
 }
 
 export interface MigrationConfig {
@@ -44,7 +45,8 @@ export async function migrateAsync(config: MigrationConfig): Promise<MigrationRe
             const migrationData = await exportAsync({
                 ...config.sourceEnvironment,
                 logger: logger,
-                exportItems: config.sourceEnvironment.items
+                exportItems: config.sourceEnvironment.items,
+                exportOptions: config.sourceEnvironment.exportOptions
             });
 
             const importResult = await importAsync({
