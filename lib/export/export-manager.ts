@@ -241,7 +241,8 @@ export function exportManager(config: ExportConfig) {
                 await exportContextFetcherAsync({
                     exportItems: config.exportItems,
                     logger: logger,
-                    managementClient: managementClient
+                    managementClient: managementClient,
+                    tolerateMissingReferences: config.tolerateMissingReferences ?? false
                 })
             ).getExportContextAsync();
 

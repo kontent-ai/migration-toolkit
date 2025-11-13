@@ -53,6 +53,7 @@ export interface ExportContext {
     readonly getAssetStateInSourceEnvironment: (id: string) => AssetStateInSourceEnvironmentById;
     readonly exportItems: readonly ExportItem[];
     readonly getElement: GetFlattenedElementByIds;
+    readonly tolerateMissingReferences: boolean;
 }
 
 export interface SourceExportItem {
@@ -63,12 +64,19 @@ export interface SourceExportItem {
 export interface ExportConfig extends ManagementClientConfig {
     readonly exportItems: readonly SourceExportItem[];
     readonly logger?: Logger;
+    /**
+     * When enabled, the export process will skip missing items and assets instead of throwing errors.
+     * Missing references will be filtered out from the exported data.
+     * Default: false
+     */
+    readonly tolerateMissingReferences?: boolean;
 }
 
 export interface DefaultExportContextConfig {
     readonly logger: Logger;
     readonly exportItems: readonly SourceExportItem[];
     readonly managementClient: Readonly<ManagementClient>;
+    readonly tolerateMissingReferences: boolean;
 }
 
 export type GetFlattenedElementByIds = (contentTypeId: string, elementId: string) => FlattenedContentTypeElement;

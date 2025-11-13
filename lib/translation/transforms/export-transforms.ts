@@ -55,16 +55,20 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
             value: data.exportElement.value
                 .map((m) => m.id)
                 .filter(isNotUndefined)
-                .map<MigrationReference>((id) => {
+                .map<MigrationReference | undefined>((id) => {
                     const assetState = data.context.getAssetStateInSourceEnvironment(id);
 
                     if (assetState.asset) {
                         // reference asset by codename
                         return { codename: assetState.asset.codename };
                     } else {
+                        if (data.context.tolerateMissingReferences) {
+                            return undefined;
+                        }
                         throw Error(`Missing asset with id '${chalk.red(id)}'`);
                     }
                 })
+                .filter(isNotUndefined)
         };
     },
     taxonomy: (data) => {
@@ -121,16 +125,20 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
             value: data.exportElement.value
                 .map((m) => m.id)
                 .filter(isNotUndefined)
-                .map<MigrationReference>((id) => {
+                .map<MigrationReference | undefined>((id) => {
                     const itemState = data.context.getItemStateInSourceEnvironment(id);
 
                     if (itemState.item) {
                         // reference item by codename
                         return { codename: itemState.item.codename };
                     } else {
+                        if (data.context.tolerateMissingReferences) {
+                            return undefined;
+                        }
                         throw Error(`Missing item with id '${chalk.red(id)}'`);
                     }
                 })
+                .filter(isNotUndefined)
         };
     },
     custom: (data) => {
@@ -192,16 +200,20 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
             value: data.exportElement.value
                 .map((m) => m.id)
                 .filter(isNotUndefined)
-                .map<MigrationReference>((id) => {
+                .map<MigrationReference | undefined>((id) => {
                     const itemState = data.context.getItemStateInSourceEnvironment(id);
 
                     if (itemState.item) {
                         // reference item by codename
                         return { codename: itemState.item.codename };
                     } else {
+                        if (data.context.tolerateMissingReferences) {
+                            return undefined;
+                        }
                         throw Error(`Missing item with id '${chalk.red(id)}'`);
                     }
                 })
+                .filter(isNotUndefined)
         };
     }
 };
@@ -237,6 +249,10 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
 
         if (!itemInEnv) {
+            if (context.tolerateMissingReferences) {
+                // Return a placeholder that will be cleaned up
+                return { codename: `__missing_item_${id}__` };
+            }
             throw Error(`Failed to get item with id '${chalk.red(id)}'`);
         }
 
@@ -250,6 +266,10 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
 
         if (!itemInEnv) {
+            if (context.tolerateMissingReferences) {
+                // Return a placeholder that will be cleaned up
+                return { codename: `__missing_item_${id}__` };
+            }
             throw Error(`Failed to get item with id '${chalk.red(id)}'`);
         }
 
@@ -263,6 +283,10 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
 
         if (!assetInEnv) {
+            if (context.tolerateMissingReferences) {
+                // Return a placeholder that will be cleaned up
+                return { codename: `__missing_asset_${id}__` };
+            }
             throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
         }
 
@@ -276,6 +300,10 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
 
         if (!assetInEnv) {
+            if (context.tolerateMissingReferences) {
+                // Return a placeholder that will be cleaned up
+                return { codename: `__missing_asset_${id}__` };
+            }
             throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
         }
 
