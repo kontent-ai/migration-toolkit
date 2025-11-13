@@ -250,7 +250,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!itemInEnv) {
             if (context.exportContextOptions.tolerateMissingReferences) {
-                // Return a placeholder that will be cleaned up
+                // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_item_${id}__` };
             }
             throw Error(`Failed to get item with id '${chalk.red(id)}'`);
@@ -267,7 +267,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!itemInEnv) {
             if (context.exportContextOptions.tolerateMissingReferences) {
-                // Return a placeholder that will be cleaned up
+                // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_item_${id}__` };
             }
             throw Error(`Failed to get item with id '${chalk.red(id)}'`);
@@ -284,7 +284,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!assetInEnv) {
             if (context.exportContextOptions.tolerateMissingReferences) {
-                // Return a placeholder that will be cleaned up
+                // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_asset_${id}__` };
             }
             throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
@@ -301,7 +301,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!assetInEnv) {
             if (context.exportContextOptions.tolerateMissingReferences) {
-                // Return a placeholder that will be cleaned up
+                // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_asset_${id}__` };
             }
             throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
