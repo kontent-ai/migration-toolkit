@@ -11,7 +11,7 @@ const run = async () => {
     const environmentId = getEnvironmentRequiredValue('sourceEnvironmentId');
     const apiKey = getEnvironmentRequiredValue('sourceApiKey');
     const logger = getDefaultLogger();
-    const exportItem: SourceExportItem[] = [
+    const exportItem: readonly SourceExportItem[] = [
         {
             itemCodename: getEnvironmentRequiredValue('item'),
             languageCodename: getEnvironmentRequiredValue('language')
@@ -36,7 +36,8 @@ const run = async () => {
         logger: logger,
         environmentId: environmentId,
         apiKey: apiKey,
-        exportItems: exportItem
+        exportItems: exportItem,
+        skipMissingReferences: true
     });
 
     await storeAsync({

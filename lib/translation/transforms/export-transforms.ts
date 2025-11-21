@@ -1,8 +1,11 @@
 import type { ContentTypeElements, TaxonomyModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
+import { match } from 'ts-pattern';
 import type { MigrationElementTransformData, MigrationElementType, MigrationReference } from '../../core/index.js';
 import { findRequired, isArray, isNotUndefined, isString } from '../../core/index.js';
+import { MigrationToolkitError, MissingAssetError, MissingItemError } from '../../core/models/error.models.js';
 import type { ExportContext, ExportElement, ExportTransformFunc } from '../../export/index.js';
+import { getMissingReferencePlaceholder } from '../helpers/export-placeholder.utils.js';
 import { richTextProcessor } from '../helpers/rich-text.processor.js';
 
 export const exportTransforms: Readonly<Record<MigrationElementType, ExportTransformFunc>> = {
@@ -19,7 +22,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
         }
 
         if (isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be a number, not array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be a number, not array`);
         }
 
         if (data.exportElement.value === 0) {
@@ -47,7 +50,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
         }
 
         if (!isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be an array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be an array`);
         }
 
         return {
@@ -58,15 +61,17 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                 .map<MigrationReference | undefined>((id) => {
                     const assetState = data.context.getAssetStateInSourceEnvironment(id);
 
-                    if (assetState.asset) {
-                        // reference asset by codename
-                        return { codename: assetState.asset.codename };
-                    } else {
-                        if (data.context.exportContextOptions.skipMissingReferences) {
-                            return undefined;
-                        }
-                        throw Error(`Missing asset with id '${chalk.red(id)}'`);
-                    }
+                    return match(assetState)
+                        .returnType<MigrationReference | undefined>()
+                        .with({ state: 'exists' }, (m) => {
+                            return { codename: m.data.codename };
+                        })
+                        .with({ state: 'skip' }, () => undefined)
+                        .with({ state: 'doesNotExists' }, () => {
+                            throw new MissingAssetError(id);
+                        })
+                        .exhaustive();
+
                 })
                 .filter(isNotUndefined)
         };
@@ -79,7 +84,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
         }
 
         if (!isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be an array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be an array`);
         }
 
         const taxonomyElement = data.typeElement.element as Readonly<ContentTypeElements.ITaxonomyElement>;
@@ -103,9 +108,9 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                     if (taxonomyTerm) {
                         // reference taxonomy term by codename
                         return { codename: taxonomyTerm.codename };
-                    } else {
-                        throw Error(`Missing taxonomy term with id '${chalk.red(id)}'`);
                     }
+
+                    throw new MigrationToolkitError('missingTaxonomyTerm', `Missing taxonomy term with id '${chalk.red(id)}'`);
                 })
         };
     },
@@ -117,7 +122,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
         }
 
         if (!isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be an array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be an array`);
         }
 
         return {
@@ -128,15 +133,16 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                 .map<MigrationReference | undefined>((id) => {
                     const itemState = data.context.getItemStateInSourceEnvironment(id);
 
-                    if (itemState.item) {
-                        // reference item by codename
-                        return { codename: itemState.item.codename };
-                    } else {
-                        if (data.context.exportContextOptions.skipMissingReferences) {
-                            return undefined;
-                        }
-                        throw Error(`Missing item with id '${chalk.red(id)}'`);
-                    }
+                    return match(itemState)
+                        .returnType<MigrationReference | undefined>()
+                        .with({ state: 'exists' }, (m) => {
+                            return { codename: m.data.codename };
+                        })
+                        .with({ state: 'skip' }, () => undefined)
+                        .with({ state: 'doesNotExists' }, () => {
+                            throw new MissingItemError(id);
+                        })
+                        .exhaustive();
                 })
                 .filter(isNotUndefined)
         };
@@ -160,7 +166,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
         }
 
         if (!isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be an array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be an array`);
         }
 
         // translate multiple choice option id to codename
@@ -178,7 +184,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                     );
 
                     if (!option.codename) {
-                        throw Error(`Invalid codename for multiple choice option '${chalk.red(option.name)}'`);
+                        throw new MigrationToolkitError('invalidMultipleChoiceOption', `Invalid codename for multiple choice option '${chalk.red(option.name)}'`);
                     }
 
                     return { codename: option.codename };
@@ -192,7 +198,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
             };
         }
         if (!isArray(data.exportElement.value)) {
-            throw Error(`Expected value to be an array`);
+            throw new MigrationToolkitError('invalidValue', `Expected value to be an array`);
         }
 
         return {
@@ -203,15 +209,16 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                 .map<MigrationReference | undefined>((id) => {
                     const itemState = data.context.getItemStateInSourceEnvironment(id);
 
-                    if (itemState.item) {
-                        // reference item by codename
-                        return { codename: itemState.item.codename };
-                    } else {
-                        if (data.context.exportContextOptions.skipMissingReferences) {
-                            return undefined;
-                        }
-                        throw Error(`Missing item with id '${chalk.red(id)}'`);
-                    }
+                    return match(itemState)
+                        .returnType<MigrationReference | undefined>()
+                        .with({ state: 'exists' }, (m) => {
+                            return { codename: m.data.codename };
+                        })
+                        .with({ state: 'skip' }, () => undefined)
+                        .with({ state: 'doesNotExists' }, () => {
+                            throw new MissingItemError(id);
+                        })
+                        .exhaustive();
                 })
                 .filter(isNotUndefined)
         };
@@ -246,14 +253,13 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
     // replace item ids with codenames
     richTextHtml = richTextProcessor().processDataIds(richTextHtml, (id) => {
-        const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
+        const itemInEnv = context.getItemStateInSourceEnvironment(id).data;
 
         if (!itemInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
-                // Return a placeholder that will be help explain the missing item
-                return { codename: `__missing_item_${id}__` };
+                return { codename: getMissingReferencePlaceholder({ type: 'item', id }) };
             }
-            throw Error(`Failed to get item with id '${chalk.red(id)}'`);
+            throw new MissingItemError(id);
         }
 
         return {
@@ -263,14 +269,14 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
     // replace link item ids with codenames
     richTextHtml = richTextProcessor().processLinkItemIds(richTextHtml, (id) => {
-        const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
+        const itemInEnv = context.getItemStateInSourceEnvironment(id).data;
 
         if (!itemInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
-                return { codename: `__missing_item_${id}__` };
+                return { codename: getMissingReferencePlaceholder({ type: 'item', id }) };
             }
-            throw Error(`Failed to get item with id '${chalk.red(id)}'`);
+            throw new MissingItemError(id);
         }
 
         return {
@@ -280,14 +286,14 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
     // replace asset ids with codenames
     richTextHtml = richTextProcessor().processAssetIds(richTextHtml, (id) => {
-        const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
+        const assetInEnv = context.getAssetStateInSourceEnvironment(id).data;
 
         if (!assetInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
-                return { codename: `__missing_asset_${id}__` };
+                return { codename: getMissingReferencePlaceholder({ type: 'asset', id }) };
             }
-            throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
+            throw new MissingAssetError(id);
         }
 
         return {
@@ -297,14 +303,14 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
     // replace link asset ids with codenames
     richTextHtml = richTextProcessor().processLinkAssetIds(richTextHtml, (id) => {
-        const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
+        const assetInEnv = context.getAssetStateInSourceEnvironment(id).data;
 
         if (!assetInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
-                return { codename: `__missing_asset_${id}__` };
+                return { codename: getMissingReferencePlaceholder({ type: 'asset', id }) };
             }
-            throw Error(`Failed to get asset with id '${chalk.red(id)}'`);
+            throw new MissingAssetError(id);
         }
 
         return {

@@ -23,6 +23,7 @@ import {
     MigrationItemsSchema,
     processItemsAsync
 } from '../core/index.js';
+import { MigrationToolkitError } from '../core/models/error.models.js';
 import { exportTransforms } from '../translation/index.js';
 import { exportContextFetcherAsync } from './context/export-context-fetcher.js';
 import type { ExportConfig, ExportContext, ExportItem } from './export.models.js';
@@ -73,7 +74,7 @@ export function exportManager(config: ExportConfig) {
         const componentType = context.environmentData.contentTypes.find((m) => m.contentTypeId === component.type.id);
 
         if (!componentType) {
-            throw Error(`Could not find content type with id '${chalk.red(component.type.id)}' for component '${chalk.red(component.id)}'`);
+            throw new MigrationToolkitError('missingContentType', `Could not find content type with id '${chalk.red(component.type.id)}' for component '${chalk.red(component.id)}'`);
         }
 
         const migrationItem: MigrationComponent = {
@@ -162,7 +163,7 @@ export function exportManager(config: ExportConfig) {
 
     const exportAssetsAsync = async (context: ExportContext): Promise<readonly Readonly<MigrationAsset>[]> => {
         const assets = Array.from(context.referencedData.assetIds)
-            .map<Readonly<AssetModels.Asset> | undefined>((assetId) => context.getAssetStateInSourceEnvironment(assetId).asset)
+            .map<Readonly<AssetModels.Asset> | undefined>((assetId) => context.getAssetStateInSourceEnvironment(assetId).data)
             .filter(isNotUndefined);
 
         return await getMigrationAssetsWithBinaryDataAsync(assets, context);

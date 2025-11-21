@@ -4,6 +4,7 @@ import type JSZip from 'jszip';
 import { match } from 'ts-pattern';
 import type { Logger } from '../core/index.js';
 import { exitProgram, formatBytes, getCurrentEnvironment, getDefaultLogger } from '../core/index.js';
+import { MigrationToolkitError } from '../core/models/error.models.js';
 import type { FileBinaryData, ZipCompressionLevel, ZipPackager } from './zip.models.js';
 
 type ZipOutputType = 'nodebuffer' | 'blob';
@@ -42,7 +43,7 @@ export function zipPackager(jsZip: JSZip): ZipPackager {
             const folder = jsZip.folder(name);
 
             if (!folder) {
-                throw Error(`Failed to add folder '${name}'`);
+                throw new MigrationToolkitError('invalidFolder', `Failed to add folder '${name}'`);
             }
 
             return zipPackager(folder);

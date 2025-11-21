@@ -1,38 +1,67 @@
 import type { ContentTypeElements } from '@kontent-ai/management-sdk';
 import { describe, expect, it } from 'vitest';
-import type { ExportContext, ExportElement, FlattenedContentTypeElement } from '../lib/index.js';
+import { MissingAssetError, MissingItemError } from '../lib/core/models/error.models.js';
+import type { AssetStateInSourceEnvironmentById, ExportContext, ExportElement, FlattenedContentTypeElement, ItemStateInSourceEnvironmentById } from '../lib/index.js';
+import { getMissingReferencePlaceholder } from '../lib/translation/helpers/export-placeholder.utils.js';
 import { exportTransforms } from '../lib/translation/transforms/export-transforms.js';
 
 // Mock context factory
 function createMockContext(
-    skipMissingReferences: boolean,
-    itemStates: Map<string, { item?: { codename: string } }>,
-    assetStates: Map<string, { asset?: { codename: string } }>
-): ExportContext {
+    { skipMissingReferences, itemStates, assetStates }: { readonly skipMissingReferences: boolean; readonly itemStates: Map<string, { readonly item?: { readonly codename: string; }; }>; readonly assetStates: Map<string, { readonly asset?: { readonly codename: string; }; }>; }): ExportContext {
     return {
         exportContextOptions: {
             skipMissingReferences
         },
-        getItemStateInSourceEnvironment: (id: string) => {
+        getItemStateInSourceEnvironment: (id: string): ItemStateInSourceEnvironmentById => {
             const state = itemStates.get(id);
+
+            if (state?.item) {
+                return {
+                    id,
+                    state: 'exists',
+                    data: state.item as NonNullable<ItemStateInSourceEnvironmentById['data']>
+                };
+            }
+
+            if (skipMissingReferences) {
+                return {
+                    id,
+                    state: 'skip',
+                };
+            }
+
             return {
                 id,
-                state: state?.item ? 'exists' : 'doesNotExists',
-                item: state?.item as any
+                state: 'doesNotExists',
             };
         },
-        getAssetStateInSourceEnvironment: (id: string) => {
+        getAssetStateInSourceEnvironment: (id: string): AssetStateInSourceEnvironmentById => {
             const state = assetStates.get(id);
+
+            if (state?.asset) {
+                return {
+                    id,
+                    state: 'exists',
+                    data: state.asset as NonNullable<AssetStateInSourceEnvironmentById['data']>
+                };
+            }
+
+            if (skipMissingReferences) {
+                return {
+                    id,
+                    state: 'skip',
+                };
+            }
+
             return {
                 id,
-                state: state?.asset ? 'exists' : 'doesNotExists',
-                asset: state?.asset as any
+                state: 'doesNotExists',
             };
         },
-        environmentData: {} as any,
-        referencedData: {} as any,
+        environmentData: { assetFolders: [], collections: [], contentTypes: [], languages: [], taxonomies: [], workflows: [] },
+        referencedData: { assetIds: new Set(), itemIds: new Set() },
         exportItems: [],
-        getElement: (() => {}) as any
+        getElement: (() => ({} as FlattenedContentTypeElement)) as ExportContext['getElement']
     };
 }
 
@@ -50,7 +79,7 @@ describe('Export Transforms - Asset Element', () => {
             ['asset-2', { asset: { codename: 'my_asset_2' } }]
         ]);
 
-        const context = createMockContext(false, new Map(), assetStates);
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates });
         const exportElement: ExportElement = {
             value: [{ id: 'asset-1' }, { id: 'asset-2' }],
             components: [],
@@ -66,7 +95,7 @@ describe('Export Transforms - Asset Element', () => {
     it('should throw error for missing asset when skipMissingReferences is false', () => {
         const assetStates = new Map([['asset-1', { asset: { codename: 'my_asset_1' } }]]);
 
-        const context = createMockContext(false, new Map(), assetStates);
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates });
         const exportElement: ExportElement = {
             value: [{ id: 'asset-1' }, { id: 'missing-asset' }],
             components: [],
@@ -75,14 +104,14 @@ describe('Export Transforms - Asset Element', () => {
         };
 
         expect(() => exportTransforms.asset({ context, typeElement, exportElement })).toThrow(
-            "Missing asset with id 'missing-asset'"
+            new MissingAssetError('missing-asset')
         );
     });
 
     it('should skip missing asset when skipMissingReferences is true', () => {
         const assetStates = new Map([['asset-1', { asset: { codename: 'my_asset_1' } }]]);
 
-        const context = createMockContext(true, new Map(), assetStates);
+        const context = createMockContext({ skipMissingReferences: true, itemStates: new Map(), assetStates });
         const exportElement: ExportElement = {
             value: [{ id: 'asset-1' }, { id: 'missing-asset' }],
             components: [],
@@ -96,7 +125,7 @@ describe('Export Transforms - Asset Element', () => {
     });
 
     it('should handle empty asset array', () => {
-        const context = createMockContext(false, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [],
             components: [],
@@ -110,7 +139,7 @@ describe('Export Transforms - Asset Element', () => {
     });
 
     it('should skip all assets when all are missing and skipMissingReferences is true', () => {
-        const context = createMockContext(true, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: true, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'missing-1' }, { id: 'missing-2' }],
             components: [],
@@ -129,7 +158,7 @@ describe('Export Transforms - Modular Content Element', () => {
         codename: 'modular_content',
         id: 'element-id',
         type: 'modular_content',
-        element: {} as ContentTypeElements.ContentTypeElementModel
+        element: {} as ContentTypeElements.ILinkedItemsElement
     };
 
     it('should export items with valid references', () => {
@@ -138,7 +167,7 @@ describe('Export Transforms - Modular Content Element', () => {
             ['item-2', { item: { codename: 'my_item_2' } }]
         ]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'item-1' }, { id: 'item-2' }],
             components: [],
@@ -154,7 +183,7 @@ describe('Export Transforms - Modular Content Element', () => {
     it('should throw error for missing item when skipMissingReferences is false', () => {
         const itemStates = new Map([['item-1', { item: { codename: 'my_item_1' } }]]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'item-1' }, { id: 'missing-item' }],
             components: [],
@@ -163,14 +192,14 @@ describe('Export Transforms - Modular Content Element', () => {
         };
 
         expect(() => exportTransforms.modular_content({ context, typeElement, exportElement })).toThrow(
-            "Missing item with id 'missing-item'"
+            new MissingItemError('missing-item')
         );
     });
 
     it('should skip missing item when skipMissingReferences is true', () => {
         const itemStates = new Map([['item-1', { item: { codename: 'my_item_1' } }]]);
 
-        const context = createMockContext(true, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: true, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'item-1' }, { id: 'missing-item' }],
             components: [],
@@ -184,7 +213,7 @@ describe('Export Transforms - Modular Content Element', () => {
     });
 
     it('should handle empty items array', () => {
-        const context = createMockContext(false, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [],
             components: [],
@@ -212,7 +241,7 @@ describe('Export Transforms - Subpages Element', () => {
             ['page-2', { item: { codename: 'my_page_2' } }]
         ]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'page-1' }, { id: 'page-2' }],
             components: [],
@@ -228,7 +257,7 @@ describe('Export Transforms - Subpages Element', () => {
     it('should throw error for missing subpage when skipMissingReferences is false', () => {
         const itemStates = new Map([['page-1', { item: { codename: 'my_page_1' } }]]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'page-1' }, { id: 'missing-page' }],
             components: [],
@@ -237,14 +266,14 @@ describe('Export Transforms - Subpages Element', () => {
         };
 
         expect(() => exportTransforms.subpages({ context, typeElement, exportElement })).toThrow(
-            "Missing item with id 'missing-page'"
+            new MissingItemError('missing-page')
         );
     });
 
     it('should skip missing subpage when skipMissingReferences is true', () => {
         const itemStates = new Map([['page-1', { item: { codename: 'my_page_1' } }]]);
 
-        const context = createMockContext(true, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: true, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: [{ id: 'page-1' }, { id: 'missing-page' }],
             components: [],
@@ -269,7 +298,7 @@ describe('Export Transforms - Rich Text Element', () => {
     it('should export rich text with valid item references', () => {
         const itemStates = new Map([['item-id-123', { item: { codename: 'my_item' } }]]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<object type="application/kenticocloud" data-type="item" data-id="item-id-123"></object>',
             components: [],
@@ -286,7 +315,7 @@ describe('Export Transforms - Rich Text Element', () => {
     it('should export rich text with valid asset references', () => {
         const assetStates = new Map([['asset-id-456', { asset: { codename: 'my_asset' } }]]);
 
-        const context = createMockContext(false, new Map(), assetStates);
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates });
         const exportElement: ExportElement = {
             value: '<figure data-asset-id="asset-id-456"><img src="#" data-asset-id="asset-id-456"></figure>',
             components: [],
@@ -301,7 +330,7 @@ describe('Export Transforms - Rich Text Element', () => {
     });
 
     it('should throw error for missing item in rich text when skipMissingReferences is false', () => {
-        const context = createMockContext(false, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<object type="application/kenticocloud" data-type="item" data-id="missing-item"></object>',
             components: [],
@@ -310,12 +339,12 @@ describe('Export Transforms - Rich Text Element', () => {
         };
 
         expect(() => exportTransforms.rich_text({ context, typeElement, exportElement })).toThrow(
-            "Failed to get item with id 'missing-item'"
+            new MissingItemError('missing-item')
         );
     });
 
     it('should use placeholder for missing item in rich text when skipMissingReferences is true', () => {
-        const context = createMockContext(true, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: true, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<object type="application/kenticocloud" data-type="item" data-id="missing-item"></object>',
             components: [],
@@ -325,11 +354,11 @@ describe('Export Transforms - Rich Text Element', () => {
 
         const result = exportTransforms.rich_text({ context, typeElement, exportElement });
 
-        expect(result.value).toContain('__missing_item_missing-item__');
+        expect(result.value).toContain(getMissingReferencePlaceholder({ type: 'item', id: 'missing-item' }));
     });
 
     it('should throw error for missing asset in rich text when skipMissingReferences is false', () => {
-        const context = createMockContext(false, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<figure data-asset-id="missing-asset"><img src="#" data-asset-id="missing-asset"></figure>',
             components: [],
@@ -338,12 +367,12 @@ describe('Export Transforms - Rich Text Element', () => {
         };
 
         expect(() => exportTransforms.rich_text({ context, typeElement, exportElement })).toThrow(
-            "Failed to get asset with id 'missing-asset'"
+            new MissingAssetError('missing-asset')
         );
     });
 
     it('should use placeholder for missing asset in rich text when skipMissingReferences is true', () => {
-        const context = createMockContext(true, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: true, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<figure data-asset-id="missing-asset"><img src="#" data-asset-id="missing-asset"></figure>',
             components: [],
@@ -353,13 +382,13 @@ describe('Export Transforms - Rich Text Element', () => {
 
         const result = exportTransforms.rich_text({ context, typeElement, exportElement });
 
-        expect(result.value).toContain('__missing_asset_missing-asset__');
+        expect(result.value).toContain(getMissingReferencePlaceholder({ type: 'asset', id: 'missing-asset' }));
     });
 
     it('should handle rich text with link item references', () => {
         const itemStates = new Map([['link-item-id', { item: { codename: 'linked_item' } }]]);
 
-        const context = createMockContext(false, itemStates, new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates, assetStates: new Map() });
         const exportElement: ExportElement = {
             value: '<a data-item-id="link-item-id">Link text</a>',
             components: [],
@@ -376,7 +405,7 @@ describe('Export Transforms - Rich Text Element', () => {
     it('should handle rich text with link asset references', () => {
         const assetStates = new Map([['link-asset-id', { asset: { codename: 'linked_asset' } }]]);
 
-        const context = createMockContext(false, new Map(), assetStates);
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates });
         const exportElement: ExportElement = {
             value: '<a data-asset-id="link-asset-id">Download</a>',
             components: [],
@@ -391,7 +420,7 @@ describe('Export Transforms - Rich Text Element', () => {
     });
 
     it('should handle empty rich text', () => {
-        const context = createMockContext(false, new Map(), new Map());
+        const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
         const exportElement: ExportElement = {
             value: undefined,
             components: [],
@@ -409,7 +438,7 @@ describe('Export Transforms - Rich Text Element', () => {
         const itemStates = new Map([['valid-item', { item: { codename: 'valid_item' } }]]);
         const assetStates = new Map([['valid-asset', { asset: { codename: 'valid_asset' } }]]);
 
-        const context = createMockContext(true, itemStates, assetStates);
+        const context = createMockContext({ skipMissingReferences: true, itemStates, assetStates });
         const exportElement: ExportElement = {
             value:
                 '<object type="application/kenticocloud" data-type="item" data-id="valid-item"></object>' +
@@ -424,8 +453,8 @@ describe('Export Transforms - Rich Text Element', () => {
         const result = exportTransforms.rich_text({ context, typeElement, exportElement });
 
         expect(result.value).toContain('data-codename="valid_item"');
-        expect(result.value).toContain('__missing_item_missing-item__');
+        expect(result.value).toContain(getMissingReferencePlaceholder({ type: 'item', id: 'missing-item' }));
         expect(result.value).toContain('data-asset-codename="valid_asset"');
-        expect(result.value).toContain('__missing_asset_missing-asset__');
+        expect(result.value).toContain(getMissingReferencePlaceholder({ type: 'asset', id: 'missing-asset' }));
     });
 });

@@ -47,9 +47,9 @@ export type LanguageVariantWorkflowStateValues = 'published' | 'archived' | 'dra
 export type LanguageVariantSchedulesStateValues = 'scheduledPublish' | 'scheduledUnpublish' | 'n/a';
 export type LanguageVariantWorkflowState =
     | {
-          readonly workflowState: LanguageVariantWorkflowStateValues;
-          readonly scheduledState: LanguageVariantSchedulesStateValues;
-      }
+        readonly workflowState: LanguageVariantWorkflowStateValues;
+        readonly scheduledState: LanguageVariantSchedulesStateValues;
+    }
     | undefined;
 
 export interface ItemInfo {
@@ -75,17 +75,24 @@ export interface ReferencedDataInLanguageVariants {
     readonly assetIds: ReadonlySet<string>;
 }
 
-export interface ItemStateInSourceEnvironmentById {
-    readonly state: TargetItemState;
+type DataStateInSourceEnvironmentById<T extends Readonly<ContentItemModels.ContentItem> | Readonly<AssetModels.Asset>> = {
     readonly id: string;
-    readonly item: Readonly<ContentItemModels.ContentItem> | undefined;
-}
+} & ({
+    readonly state: "exists"
+    readonly data: T
+} | {
+    readonly state: "doesNotExists"
+    readonly data?: never;
+} | {
+    readonly state: "skip"
+    readonly data?: never;
+});
 
-export interface AssetStateInSourceEnvironmentById {
-    readonly state: TargetItemState;
-    readonly id: string;
-    readonly asset: Readonly<AssetModels.Asset> | undefined;
-}
+export type ItemStateInSourceEnvironmentById =
+    DataStateInSourceEnvironmentById<Readonly<ContentItemModels.ContentItem>>;
+
+export type AssetStateInSourceEnvironmentById =
+    DataStateInSourceEnvironmentById<Readonly<AssetModels.Asset>>;
 
 export interface ItemStateInTargetEnvironmentByCodename {
     readonly state: TargetItemState;
@@ -154,16 +161,16 @@ export interface OriginalManagementError {
 
 export type ItemProcessingResult<InputItem, OutputItem> =
     | {
-          readonly state: 'valid';
-          readonly inputItem: InputItem;
-          readonly outputItem: OutputItem;
-      }
+        readonly state: 'valid';
+        readonly inputItem: InputItem;
+        readonly outputItem: OutputItem;
+    }
     | {
-          readonly state: 'error';
-          readonly inputItem: InputItem;
-          readonly error: unknown;
-      }
+        readonly state: 'error';
+        readonly inputItem: InputItem;
+        readonly error: unknown;
+    }
     | {
-          readonly state: '404';
-          readonly inputItem: InputItem;
-      };
+        readonly state: '404';
+        readonly inputItem: InputItem;
+    };

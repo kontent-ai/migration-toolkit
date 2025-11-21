@@ -1,14 +1,14 @@
 import type { AssetStateInTargetEnvironmentByCodename, ItemStateInTargetEnvironmentByCodename } from '../../core/index.js';
 
 export type CodenameReplaceFunc<T> = (codename: string) => T;
-export type IdReplaceFunc = (id: string) => { codename: string };
+export type IdReplaceFunc = (id: string) => { readonly codename: string };
 
-interface ProcessCodenamesResult {
+type ProcessCodenamesResult = {
     readonly codenames: ReadonlySet<string>;
     readonly html: string;
 }
 
-interface ProcessIdsResult {
+type ProcessIdsResult = {
     readonly ids: ReadonlySet<string>;
     readonly html: string;
 }

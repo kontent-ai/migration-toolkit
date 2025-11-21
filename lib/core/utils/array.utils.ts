@@ -1,3 +1,4 @@
+import { MigrationToolkitError } from '../models/error.models.js';
 import type { MigrationElementValue, MigrationReference } from '../models/migration.models.js';
 import { isArray, isString } from './global.utils.js';
 
@@ -8,7 +9,7 @@ export function parseAsMigrationReferencesArray(value: MigrationElementValue): r
     if (isArray(value)) {
         return value;
     }
-    throw Error(`Value is not an array`);
+    throw new MigrationToolkitError('invalidValue', `Value is not an array`);
 }
 
 export function findRequired<T>(array: readonly T[], predicate: (item: T, index: number) => boolean, errorMessage: string): T;
@@ -25,7 +26,7 @@ export function findRequired<T>(
     }
 
     if (isString(errorMessage)) {
-        throw Error(errorMessage);
+        throw new MigrationToolkitError('findRequiredError', errorMessage);
     }
     return errorMessage();
 }

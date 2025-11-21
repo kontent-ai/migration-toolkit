@@ -4,6 +4,7 @@ import { isBrowser, isNode, isWebWorker } from 'browser-or-node';
 import { format } from 'bytes';
 import { getDefaultLogger } from '../logs/loggers.js';
 import type { EnvContext } from '../models/core.models.js';
+import { MigrationToolkitError } from '../models/error.models.js';
 import type { Logger } from '../models/log.models.js';
 import { extractErrorData } from './error.utils.js';
 
@@ -19,7 +20,7 @@ export function formatBytes(bytes: number): string {
 }
 
 export function exitProgram(data: { readonly message: string }): never {
-    throw Error(data.message);
+    throw new MigrationToolkitError('exitProgram', data.message);
 }
 
 export function getCurrentEnvironment(): EnvContext {
@@ -30,7 +31,7 @@ export function getCurrentEnvironment(): EnvContext {
         return 'browser';
     }
 
-    throw Error(`Invalid current environment. This library can be used in node.js or in browsers.`);
+    throw new MigrationToolkitError('invalidEnvironment', `Invalid current environment. This library can be used in node.js or in browsers.`);
 }
 
 export const defaultZipFilename: string = 'data.zip';

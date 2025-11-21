@@ -14,27 +14,27 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
     const filename = cliFetcher.getOptionalArgumentValue('filename') ?? defaultZipFilename;
 
     await confirmExportAsync({
-        force: force,
-        apiKey: apiKey,
-        environmentId: environmentId,
-        logger: logger,
+        force,
+        apiKey,
+        environmentId,
+        logger,
         dataToExport: {
             itemsCount: items.length
         }
     });
 
     const exportedData = await exportAsync({
-        logger: logger,
-        environmentId: environmentId,
-        apiKey: apiKey,
-        baseUrl: baseUrl,
+        logger,
+        environmentId,
+        apiKey,
+        baseUrl,
         exportItems: items.map((m) => {
             return {
                 itemCodename: m,
                 languageCodename: language
             };
         }),
-        skipMissingReferences: skipMissingReferences
+        skipMissingReferences
     });
 
     await storeAsync({

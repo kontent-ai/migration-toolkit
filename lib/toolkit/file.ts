@@ -1,6 +1,7 @@
 import { Buffer as BufferProxy } from 'buffer';
 import type { Logger, MigrationData } from '../core/index.js';
 import { defaultZipFilename, executeWithTrackingAsync, getDefaultLogger } from '../core/index.js';
+import { MigrationToolkitError } from '../core/models/error.models.js';
 import { fileManager } from '../file/index.js';
 import { libMetadata } from '../metadata.js';
 import { zipManager } from '../zip/index.js';
@@ -37,7 +38,7 @@ export async function storeAsync(config: StoreConfig): Promise<void> {
             if (zipData instanceof BufferProxy) {
                 await fileManager(logger).writeFileAsync(filename, zipData);
             } else {
-                throw Error(`Cannot store '${filename}' on File system because the provided zip is not a Buffer`);
+                throw new MigrationToolkitError('invalidZip', `Cannot store '${filename}' on File system because the provided zip is not a Buffer`);
             }
         },
         logger: config.logger
