@@ -14,7 +14,7 @@ export interface MigrationSource extends ManagementClientConfig {
      * Missing references will be filtered out from the exported data.
      * Default: false
      */
-    readonly tolerateMissingReferences?: boolean;
+    readonly skipMissingReferences?: boolean;
 }
 
 export interface MigrationConfig {
@@ -51,7 +51,7 @@ export async function migrateAsync(config: MigrationConfig): Promise<MigrationRe
                 ...config.sourceEnvironment,
                 logger: logger,
                 exportItems: config.sourceEnvironment.items,
-                tolerateMissingReferences: config.sourceEnvironment.tolerateMissingReferences
+                skipMissingReferences: config.sourceEnvironment.skipMissingReferences
             });
 
             const importResult = await importAsync({

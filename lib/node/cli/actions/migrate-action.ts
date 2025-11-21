@@ -10,7 +10,7 @@ export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Prom
     const targetEnvironmentId = argsFetcher.getRequiredArgumentValue('targetEnvironmentId');
     const targetApiKey = argsFetcher.getRequiredArgumentValue('targetApiKey');
     const force = argsFetcher.getBooleanArgumentValue('force', false);
-    const tolerateMissingReferences = argsFetcher.getBooleanArgumentValue('tolerateMissingReferences', false);
+    const skipMissingReferences = argsFetcher.getBooleanArgumentValue('skipMissingReferences', false);
     const items = argsFetcher.getRequiredArgumentValue('items')?.split(',');
     const language = argsFetcher.getRequiredArgumentValue('language');
     const migrateItems: readonly SourceExportItem[] = items.map((m) => {
@@ -42,7 +42,7 @@ export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Prom
             environmentId: sourceEnvironmentId,
             apiKey: sourceApiKey,
             items: migrateItems,
-            tolerateMissingReferences: tolerateMissingReferences
+            skipMissingReferences: skipMissingReferences
         },
         targetEnvironment: {
             environmentId: targetEnvironmentId,

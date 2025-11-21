@@ -62,7 +62,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                         // reference asset by codename
                         return { codename: assetState.asset.codename };
                     } else {
-                        if (data.context.exportContextOptions.tolerateMissingReferences) {
+                        if (data.context.exportContextOptions.skipMissingReferences) {
                             return undefined;
                         }
                         throw Error(`Missing asset with id '${chalk.red(id)}'`);
@@ -132,7 +132,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                         // reference item by codename
                         return { codename: itemState.item.codename };
                     } else {
-                        if (data.context.exportContextOptions.tolerateMissingReferences) {
+                        if (data.context.exportContextOptions.skipMissingReferences) {
                             return undefined;
                         }
                         throw Error(`Missing item with id '${chalk.red(id)}'`);
@@ -207,7 +207,7 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
                         // reference item by codename
                         return { codename: itemState.item.codename };
                     } else {
-                        if (data.context.exportContextOptions.tolerateMissingReferences) {
+                        if (data.context.exportContextOptions.skipMissingReferences) {
                             return undefined;
                         }
                         throw Error(`Missing item with id '${chalk.red(id)}'`);
@@ -249,7 +249,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
 
         if (!itemInEnv) {
-            if (context.exportContextOptions.tolerateMissingReferences) {
+            if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_item_${id}__` };
             }
@@ -266,7 +266,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const itemInEnv = context.getItemStateInSourceEnvironment(id).item;
 
         if (!itemInEnv) {
-            if (context.exportContextOptions.tolerateMissingReferences) {
+            if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_item_${id}__` };
             }
@@ -283,7 +283,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
 
         if (!assetInEnv) {
-            if (context.exportContextOptions.tolerateMissingReferences) {
+            if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_asset_${id}__` };
             }
@@ -300,7 +300,7 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
         const assetInEnv = context.getAssetStateInSourceEnvironment(id).asset;
 
         if (!assetInEnv) {
-            if (context.exportContextOptions.tolerateMissingReferences) {
+            if (context.exportContextOptions.skipMissingReferences) {
                 // Return a placeholder that will be help explain the missing item
                 return { codename: `__missing_asset_${id}__` };
             }

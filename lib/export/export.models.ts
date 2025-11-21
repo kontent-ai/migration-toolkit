@@ -67,7 +67,7 @@ export interface ExportContextOptions {
      * Missing references will be filtered out from the exported data.
      * Default: false
      */
-    readonly tolerateMissingReferences?: boolean;
+    readonly skipMissingReferences?: boolean;
 }
 
 export interface ExportConfig extends ManagementClientConfig {
@@ -78,14 +78,14 @@ export interface ExportConfig extends ManagementClientConfig {
      * Missing references will be filtered out from the exported data.
      * Default: false
      */
-    readonly tolerateMissingReferences?: boolean;
+    readonly skipMissingReferences?: boolean;
 }
 
 export interface DefaultExportContextConfig {
     readonly logger: Logger;
     readonly exportItems: readonly SourceExportItem[];
     readonly managementClient: Readonly<ManagementClient>;
-    readonly tolerateMissingReferences: boolean;
+    readonly skipMissingReferences: boolean;
 }
 
 export type GetFlattenedElementByIds = (contentTypeId: string, elementId: string) => FlattenedContentTypeElement;

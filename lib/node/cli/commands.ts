@@ -49,7 +49,7 @@ export const cliArgs = argumentsSetter()
                 isRequired: false
             },
             {
-                name: `tolerateMissingReferences`,
+                name: `skipMissingReferences`,
                 description: `When enabled, missing items and assets will be skipped instead of throwing errors`,
                 type: 'boolean',
                 isRequired: false
@@ -147,7 +147,7 @@ export const cliArgs = argumentsSetter()
                 isRequired: false
             },
             {
-                name: `tolerateMissingReferences`,
+                name: `skipMissingReferences`,
                 description: `When enabled, missing items and assets will be skipped instead of throwing errors`,
                 type: 'boolean',
                 isRequired: false
