@@ -4,6 +4,7 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import type { CliAction, LiteralUnion } from '../../../core/index.js';
 import { exitProgram } from '../../../core/index.js';
+import { MigrationToolkitError } from '../../../core/models/error.models.js';
 import type { CliArgumentsFetcher } from '../cli.models.js';
 
 type ArgvResult = {
@@ -30,7 +31,7 @@ export async function argumentsFetcherAsync(): Promise<CliArgumentsFetcher> {
                 .with('import', () => 'import')
                 .with('migrate', () => 'migrate')
                 .otherwise(() => {
-                    throw Error(`Unsupported command '${chalk.yellow(command)}'`);
+                    throw new MigrationToolkitError('unsupportedCommand', `Unsupported command '${chalk.yellow(command)}'`);
                 });
         },
         getOptionalArgumentValue(argName: string): string | undefined {

@@ -21,6 +21,7 @@ import {
     runMapiRequestAsync,
     workflowHelper as workflowHelperInit
 } from '../../core/index.js';
+import { MigrationToolkitError } from '../../core/models/error.models.js';
 import type { ExtractItemByCodename } from '../../translation/index.js';
 import { itemsExtractionProcessor } from '../../translation/index.js';
 import type { GetFlattenedElementByCodenames, ImportContext, ImportContextConfig, ImportContextEnvironmentData } from '../import.models.js';
@@ -72,7 +73,8 @@ export async function importContextFetcherAsync(config: ImportContextConfig) {
             );
 
             if (sourceType !== element.type) {
-                throw Error(
+                throw new MigrationToolkitError(
+                    'invalidElement',
                     `Element '${chalk.red(element.codename)}' in content type '${chalk.yellow(
                         contentType.contentTypeCodename
                     )}' is of type '${chalk.red(element.type)}', but source type is '${chalk.yellow(sourceType)}'.`

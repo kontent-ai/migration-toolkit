@@ -47,6 +47,12 @@ export const cliArgs = argumentsSetter()
                 description: `Custom base URL`,
                 type: 'string',
                 isRequired: false
+            },
+            {
+                name: `skipMissingReferences`,
+                description: `When enabled, missing items and assets will be skipped instead of throwing errors`,
+                type: 'boolean',
+                isRequired: false
             }
         ]
     })
@@ -138,6 +144,12 @@ export const cliArgs = argumentsSetter()
                 name: `baseUrl`,
                 description: `Custom base URL`,
                 type: 'string',
+                isRequired: false
+            },
+            {
+                name: `skipMissingReferences`,
+                description: `When enabled, missing items and assets will be skipped instead of throwing errors`,
+                type: 'boolean',
                 isRequired: false
             }
         ]

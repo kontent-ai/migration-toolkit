@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { MigrationToolkitError } from '../models/error.models.js';
 import type { Logger } from '../models/log.models.js';
 import { getMigrationManagementClient, managementClientUtils } from './management-client-utils.js';
 
@@ -124,7 +125,7 @@ async function confirmAsync(data: {
     });
 
     if (!confirmed.confirm) {
-        throw Error(`Confirmation refused.`);
+        throw new MigrationToolkitError('confirmationRefused', `Confirmation refused.`);
     }
 }
 
