@@ -10,29 +10,31 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
     const items = cliFetcher.getRequiredArgumentValue('items').split(',');
     const baseUrl = cliFetcher.getOptionalArgumentValue('baseUrl');
     const force = cliFetcher.getBooleanArgumentValue('force', false);
+    const skipMissingReferences = cliFetcher.getBooleanArgumentValue('skipMissingReferences', false);
     const filename = cliFetcher.getOptionalArgumentValue('filename') ?? defaultZipFilename;
 
     await confirmExportAsync({
-        force: force,
-        apiKey: apiKey,
-        environmentId: environmentId,
-        logger: logger,
+        force,
+        apiKey,
+        environmentId,
+        logger,
         dataToExport: {
             itemsCount: items.length
         }
     });
 
     const exportedData = await exportAsync({
-        logger: logger,
-        environmentId: environmentId,
-        apiKey: apiKey,
-        baseUrl: baseUrl,
+        logger,
+        environmentId,
+        apiKey,
+        baseUrl,
         exportItems: items.map((m) => {
             return {
                 itemCodename: m,
                 languageCodename: language
             };
-        })
+        }),
+        skipMissingReferences
     });
 
     await storeAsync({

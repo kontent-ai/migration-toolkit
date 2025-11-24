@@ -358,10 +358,23 @@ export async function exportContextFetcherAsync(config: DefaultExportContextConf
 
         return Array.from(itemIds).map<ItemStateInSourceEnvironmentById>((itemId) => {
             const item = items.find((m) => m.id === itemId);
+
+            if (item) {
+                return {
+                    id: itemId,
+                    data: item,
+                    state: 'exists'
+                }
+            }
+            if (config.skipMissingReferences) {
+                return {
+                    id: itemId,
+                    state: 'skip'
+                }
+            }
             return {
                 id: itemId,
-                item: item,
-                state: item ? 'exists' : 'doesNotExists'
+                state: 'doesNotExists'
             };
         });
     };
@@ -371,10 +384,23 @@ export async function exportContextFetcherAsync(config: DefaultExportContextConf
 
         return Array.from(assetIds).map<AssetStateInSourceEnvironmentById>((assetId) => {
             const asset = assets.find((m) => m.id === assetId);
+
+            if (asset) {
+                return {
+                    id: assetId,
+                    data: asset,
+                    state: 'exists'
+                };
+            }
+            if (config.skipMissingReferences) {
+                return {
+                    id: assetId,
+                    state: 'skip'
+                };
+            }
             return {
                 id: assetId,
-                asset: asset,
-                state: asset ? 'exists' : 'doesNotExists'
+                state: 'doesNotExists'
             };
         });
     };
@@ -430,6 +456,9 @@ export async function exportContextFetcherAsync(config: DefaultExportContextConf
             exportItems: preparedItems,
             environmentData: environmentData,
             referencedData: referencedData,
+            exportContextOptions: {
+                skipMissingReferences: config.skipMissingReferences ?? false
+            },
             getAssetStateInSourceEnvironment: (id) =>
                 findRequired(
                     assetStates,

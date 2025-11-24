@@ -9,6 +9,12 @@ import { importAsync } from './import.js';
 
 export interface MigrationSource extends ManagementClientConfig {
     readonly items: readonly SourceExportItem[];
+    /**
+     * When enabled, the export process will skip missing items and assets instead of throwing errors.
+     * Missing references will be filtered out from the exported data.
+     * Default: false
+     */
+    readonly skipMissingReferences?: boolean;
 }
 
 export interface MigrationConfig {
@@ -44,7 +50,8 @@ export async function migrateAsync(config: MigrationConfig): Promise<MigrationRe
             const migrationData = await exportAsync({
                 ...config.sourceEnvironment,
                 logger: logger,
-                exportItems: config.sourceEnvironment.items
+                exportItems: config.sourceEnvironment.items,
+                skipMissingReferences: config.sourceEnvironment.skipMissingReferences
             });
 
             const importResult = await importAsync({

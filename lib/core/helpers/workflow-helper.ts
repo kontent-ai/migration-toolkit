@@ -1,5 +1,6 @@
 import type { WorkflowContracts, WorkflowModels } from '@kontent-ai/management-sdk';
 import chalk from 'chalk';
+import { MigrationToolkitError } from '../models/error.models.js';
 import { findRequired } from '../utils/array.utils.js';
 
 export type WorkflowStep = {
@@ -41,7 +42,7 @@ export function workflowHelper(workflows: readonly Readonly<WorkflowModels.Workf
                     const transitionStep = allStepsContracts.find((step) => step.id === transitionTo.step.id);
 
                     if (!transitionStep) {
-                        throw Error(`Could not find transition step with id '${transitionTo.step.id}' in workflow '${workflow.codename}'`);
+                        throw new MigrationToolkitError('missingWorkflowStep', `Could not find transition step with id '${transitionTo.step.id}' in workflow '${workflow.codename}'`);
                     }
 
                     return {
