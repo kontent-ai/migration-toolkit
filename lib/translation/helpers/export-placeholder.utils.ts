@@ -5,6 +5,6 @@
  * @param id - The id of the reference
  * @returns A placeholder that indicates missing reference
  */
-export function getMissingReferencePlaceholder({ type, id }: { readonly type: 'item' | 'asset'; readonly id: string }): string {
-    return `#missing:${type}:${id}#`;
+export function getMissingReferencePlaceholder({ type, id }: { readonly type: "item" | "asset"; readonly id: string }): string {
+	return `#missing:${type}:${id}#`;
 }

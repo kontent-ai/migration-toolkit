@@ -1,51 +1,54 @@
-import * as dotenv from 'dotenv';
-import type { SourceExportItem } from '../../lib/index.js';
-import { confirmExportAsync, exportAsync, getDefaultLogger, handleError, storeAsync } from '../../lib/index.js';
-import { getEnvironmentRequiredValue } from './utils/test.utils.js';
+import * as dotenv from "dotenv";
+import { getDefaultLogger } from "../../lib/core/logs/loggers.js";
+import { confirmExportAsync } from "../../lib/core/utils/confirm.utils.js";
+import { handleError } from "../../lib/core/utils/error.utils.js";
+import type { SourceExportItem } from "../../lib/export/export.models.js";
+import { exportAsync, storeAsync } from "../../lib/index.js";
+import { getEnvironmentRequiredValue } from "./utils/test.utils.js";
 
 const run = async () => {
-    dotenv.config({
-        path: '../../.env.local'
-    });
+	dotenv.config({
+		path: "../../.env.local",
+	});
 
-    const environmentId = getEnvironmentRequiredValue('sourceEnvironmentId');
-    const apiKey = getEnvironmentRequiredValue('sourceApiKey');
-    const logger = getDefaultLogger();
-    const exportItem: readonly SourceExportItem[] = [
-        {
-            itemCodename: getEnvironmentRequiredValue('item'),
-            languageCodename: getEnvironmentRequiredValue('language')
-        },
-        {
-            itemCodename: getEnvironmentRequiredValue('item'),
-            languageCodename: getEnvironmentRequiredValue('languageSecondary')
-        }
-    ];
+	const environmentId = getEnvironmentRequiredValue("sourceEnvironmentId");
+	const apiKey = getEnvironmentRequiredValue("sourceApiKey");
+	const logger = getDefaultLogger();
+	const exportItem: readonly SourceExportItem[] = [
+		{
+			itemCodename: getEnvironmentRequiredValue("item"),
+			languageCodename: getEnvironmentRequiredValue("language"),
+		},
+		{
+			itemCodename: getEnvironmentRequiredValue("item"),
+			languageCodename: getEnvironmentRequiredValue("languageSecondary"),
+		},
+	];
 
-    await confirmExportAsync({
-        force: false,
-        apiKey: apiKey,
-        environmentId: environmentId,
-        logger: logger,
-        dataToExport: {
-            itemsCount: exportItem.length
-        }
-    });
+	await confirmExportAsync({
+		force: false,
+		apiKey: apiKey,
+		environmentId: environmentId,
+		logger: logger,
+		dataToExport: {
+			itemsCount: exportItem.length,
+		},
+	});
 
-    const exportData = await exportAsync({
-        logger: logger,
-        environmentId: environmentId,
-        apiKey: apiKey,
-        exportItems: exportItem,
-        skipMissingReferences: true
-    });
+	const exportData = await exportAsync({
+		logger: logger,
+		environmentId: environmentId,
+		apiKey: apiKey,
+		exportItems: exportItem,
+		skipMissingReferences: true,
+	});
 
-    await storeAsync({
-        data: exportData,
-        filename: 'data.zip'
-    });
+	await storeAsync({
+		data: exportData,
+		filename: "data.zip",
+	});
 };
 
 run().catch((error) => {
-    handleError(error);
+	handleError(error);
 });

@@ -1,15 +1,15 @@
-import chalk from 'chalk';
+import chalk from "chalk";
 
 export function getEnvironmentRequiredValue(variableName: string): string {
-    const value = getEnvironmentOptionalValue(variableName);
+	const value = getEnvironmentOptionalValue(variableName);
 
-    if (!value) {
-        throw new Error(`Missing environment variable '${chalk.red(variableName)}'`);
-    }
+	if (!value) {
+		throw new Error(`Missing environment variable '${chalk.red(variableName)}'`);
+	}
 
-    return value;
+	return value;
 }
 
 export function getEnvironmentOptionalValue(variableName: string): string | undefined {
-    return process.env[variableName] ?? undefined;
+	return process.env[variableName] ?? undefined;
 }

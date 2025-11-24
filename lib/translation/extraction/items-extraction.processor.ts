@@ -1,188 +1,218 @@
-import type { ElementModels } from '@kontent-ai/management-sdk';
-import { match, P } from 'ts-pattern';
-import type {
-    MigrationElementModels,
-    MigrationElements,
-    ReferencedDataInLanguageVariants,
-    ReferencedDataInMigrationItems
-} from '../../core/index.js';
-import { isArray, isString, parseAsMigrationReferencesArray } from '../../core/index.js';
-import type { GetFlattenedElementByIds } from '../../export/export.models.js';
-import type { GetFlattenedElementByCodenames } from '../../import/index.js';
-import { richTextProcessor } from '../index.js';
+import { isArray } from "node:util";
+import type { ElementModels } from "@kontent-ai/management-sdk";
+import { match, P } from "ts-pattern";
+import type { ReferencedDataInLanguageVariants, ReferencedDataInMigrationItems } from "../../core/models/core.models.js";
+import type { MigrationElementModels, MigrationElements } from "../../core/models/migration.models.js";
+import { parseAsMigrationReferencesArray } from "../../core/utils/array.utils.js";
+import { isString } from "../../core/utils/global.utils.js";
+import type { GetFlattenedElementByIds } from "../../export/export.models.js";
+import type { GetFlattenedElementByCodenames } from "../../import/import.models.js";
+import { richTextProcessor } from "../helpers/rich-text.processor.js";
 
 export interface ExtractItemById {
-    readonly elements: readonly Readonly<ElementModels.ContentItemElement>[];
-    readonly contentTypeId: string;
+	readonly elements: readonly Readonly<ElementModels.ContentItemElement>[];
+	readonly contentTypeId: string;
 }
 
 export interface ExtractItemByCodename {
-    readonly elements: MigrationElements;
-    readonly contentTypeCodename: string;
+	readonly elements: MigrationElements;
+	readonly contentTypeCodename: string;
 }
 
 export interface ReferencedDataInMigrationItemsLocal {
-    readonly itemCodenames: Set<string>;
-    readonly assetCodenames: Set<string>;
+	readonly itemCodenames: Set<string>;
+	readonly assetCodenames: Set<string>;
 }
 
 export interface ReferencedDataInLanguageVariantsLocal {
-    readonly itemIds: Set<string>;
-    readonly assetIds: Set<string>;
+	readonly itemIds: Set<string>;
+	readonly assetIds: Set<string>;
 }
 
 export function itemsExtractionProcessor() {
-    const extractReferencedDataFromExtractItems = (
-        items: readonly ExtractItemById[],
-        getElement: GetFlattenedElementByIds
-    ): ReferencedDataInLanguageVariants => {
-        const extractedIds = items.reduce<ReferencedDataInLanguageVariantsLocal>(
-            (extractedIds, item) => {
-                return item.elements.reduce<ReferencedDataInLanguageVariantsLocal>((childExtractedIds, itemElement) => {
-                    const typeElement = getElement(item.contentTypeId, itemElement.element.id ?? '');
+	const extractReferencedDataFromExtractItems = (
+		items: readonly ExtractItemById[],
+		getElement: GetFlattenedElementByIds,
+	): ReferencedDataInLanguageVariants => {
+		const extractedIds = items.reduce<ReferencedDataInLanguageVariantsLocal>(
+			(extractedIds, item) => {
+				return item.elements.reduce<ReferencedDataInLanguageVariantsLocal>((childExtractedIds, itemElement) => {
+					const typeElement = getElement(item.contentTypeId, itemElement.element.id ?? "");
 
-                    match(typeElement.type)
-                        .with('rich_text', () => {
-                            const rteValue = itemElement.value && isString(itemElement.value) ? itemElement.value : '';
+					match(typeElement.type)
+						.with("rich_text", () => {
+							const rteValue = itemElement.value && isString(itemElement.value) ? itemElement.value : "";
 
-                            // extract referenced items
-                            richTextProcessor()
-                                .processDataIds(rteValue)
-                                .ids.forEach((id) => extractedIds.itemIds.add(id));
+							// extract referenced items
+							richTextProcessor()
+								.processDataIds(rteValue)
+								.ids.forEach((id) => {
+									extractedIds.itemIds.add(id);
+								});
 
-                            richTextProcessor()
-                                .processLinkItemIds(rteValue)
-                                .ids.forEach((id) => extractedIds.itemIds.add(id));
+							richTextProcessor()
+								.processLinkItemIds(rteValue)
+								.ids.forEach((id) => {
+									extractedIds.itemIds.add(id);
+								});
 
-                            // extract referenced assets
-                            richTextProcessor()
-                                .processAssetIds(rteValue)
-                                .ids.forEach((id) => extractedIds.assetIds.add(id));
+							// extract referenced assets
+							richTextProcessor()
+								.processAssetIds(rteValue)
+								.ids.forEach((id) => {
+									extractedIds.assetIds.add(id);
+								});
 
-                            richTextProcessor()
-                                .processLinkAssetIds(rteValue)
-                                .ids.forEach((id) => extractedIds.assetIds.add(id));
+							richTextProcessor()
+								.processLinkAssetIds(rteValue)
+								.ids.forEach((id) => {
+									extractedIds.assetIds.add(id);
+								});
 
-                            // recursively extract data from components as well because they may reference additional assets & content items
-                            const extractedComponents = extractReferencedDataFromExtractItems(
-                                itemElement.components.map((component) => {
-                                    return {
-                                        contentTypeId: component.type.id ?? '',
-                                        elements: component.elements
-                                    };
-                                }),
-                                getElement
-                            );
+							// recursively extract data from components as well because they may reference additional assets & content items
+							const extractedComponents = extractReferencedDataFromExtractItems(
+								itemElement.components.map((component) => {
+									return {
+										contentTypeId: component.type.id ?? "",
+										elements: component.elements,
+									};
+								}),
+								getElement,
+							);
 
-                            extractedComponents.itemIds.forEach((id) => extractedIds.itemIds.add(id));
-                            extractedComponents.assetIds.forEach((id) => extractedIds.assetIds.add(id));
-                        })
-                        .with(P.union('modular_content', 'subpages'), () => {
-                            if (itemElement.value && isArray(itemElement.value)) {
-                                itemElement.value.forEach((value) => (value.id ? extractedIds.itemIds.add(value.id) : {}));
-                            }
-                        })
-                        .with('asset', () => {
-                            if (itemElement.value && isArray(itemElement.value)) {
-                                itemElement.value.forEach((value) => (value.id ? extractedIds.assetIds.add(value.id) : {}));
-                            }
-                        })
-                        .otherwise(() => {});
+							extractedComponents.itemIds.forEach((id) => {
+								extractedIds.itemIds.add(id);
+							});
+							extractedComponents.assetIds.forEach((id) => {
+								extractedIds.assetIds.add(id);
+							});
+						})
+						.with(P.union("modular_content", "subpages"), () => {
+							if (itemElement.value && isArray(itemElement.value)) {
+								itemElement.value.forEach((value) => {
+									if (value.id) {
+										extractedIds.itemIds.add(value.id);
+									}
+								});
+							}
+						})
+						.with("asset", () => {
+							if (itemElement.value && isArray(itemElement.value)) {
+								itemElement.value.forEach((value) => {
+									if (value.id) {
+										extractedIds.assetIds.add(value.id);
+									}
+								});
+							}
+						})
+						.otherwise(() => {});
 
-                    return childExtractedIds;
-                }, extractedIds);
-            },
-            { itemIds: new Set(), assetIds: new Set() }
-        );
+					return childExtractedIds;
+				}, extractedIds);
+			},
+			{ itemIds: new Set(), assetIds: new Set() },
+		);
 
-        return {
-            itemIds: extractedIds.itemIds,
-            assetIds: extractedIds.assetIds
-        };
-    };
+		return {
+			itemIds: extractedIds.itemIds,
+			assetIds: extractedIds.assetIds,
+		};
+	};
 
-    const extractReferencedItemsFromMigrationItems = (
-        items: readonly ExtractItemByCodename[],
-        getElement: GetFlattenedElementByCodenames
-    ): ReferencedDataInMigrationItems => {
-        const extractedCodenames = items.reduce<ReferencedDataInMigrationItemsLocal>(
-            (extractedCodenames, item) => {
-                return Object.entries(item.elements).reduce<ReferencedDataInMigrationItemsLocal>(
-                    (childExtractedCodenames, [elementCodename, element]) => {
-                        const flattenedElement = getElement(item.contentTypeCodename, elementCodename, element.type);
-                        match(flattenedElement.type)
-                            .with('rich_text', () => {
-                                const richTextElementValue = element as MigrationElementModels.RichTextElement;
-                                const richTextHtml = richTextElementValue?.value ?? '';
+	const extractReferencedItemsFromMigrationItems = (
+		items: readonly ExtractItemByCodename[],
+		getElement: GetFlattenedElementByCodenames,
+	): ReferencedDataInMigrationItems => {
+		const extractedCodenames = items.reduce<ReferencedDataInMigrationItemsLocal>(
+			(extractedCodenames, item) => {
+				return Object.entries(item.elements).reduce<ReferencedDataInMigrationItemsLocal>(
+					(childExtractedCodenames, [elementCodename, element]) => {
+						const flattenedElement = getElement(item.contentTypeCodename, elementCodename, element.type);
+						match(flattenedElement.type)
+							.with("rich_text", () => {
+								const richTextElementValue = element as MigrationElementModels.RichTextElement;
+								const richTextHtml = richTextElementValue.value ?? "";
 
-                                // items
-                                richTextProcessor()
-                                    .processItemCodenames(richTextHtml)
-                                    .codenames.forEach((codename) => childExtractedCodenames.itemCodenames.add(codename));
+								// items
+								richTextProcessor()
+									.processItemCodenames(richTextHtml)
+									.codenames.forEach((codename) => {
+										childExtractedCodenames.itemCodenames.add(codename);
+									});
 
-                                richTextProcessor()
-                                    .processLinkItemCodenames(richTextHtml)
-                                    .codenames.forEach((codename) => childExtractedCodenames.itemCodenames.add(codename));
+								richTextProcessor()
+									.processLinkItemCodenames(richTextHtml)
+									.codenames.forEach((codename) => {
+										childExtractedCodenames.itemCodenames.add(codename);
+									});
 
-                                // assets
-                                richTextProcessor()
-                                    .processAssetCodenames(richTextHtml)
-                                    .codenames.forEach((codename) => childExtractedCodenames.assetCodenames.add(codename));
+								// assets
+								richTextProcessor()
+									.processAssetCodenames(richTextHtml)
+									.codenames.forEach((codename) => {
+										childExtractedCodenames.assetCodenames.add(codename);
+									});
 
-                                richTextProcessor()
-                                    .processLinkAssetCodenames(richTextHtml)
-                                    .codenames.forEach((codename) => childExtractedCodenames.assetCodenames.add(codename));
+								richTextProcessor()
+									.processLinkAssetCodenames(richTextHtml)
+									.codenames.forEach((codename) => {
+										childExtractedCodenames.assetCodenames.add(codename);
+									});
 
-                                // recursively extract data from components as well because they may reference additional assets & content items
-                                const extractedComponents = extractReferencedItemsFromMigrationItems(
-                                    (element.components ?? []).map((component) => {
-                                        const extractionItem: ExtractItemByCodename = {
-                                            contentTypeCodename: component.system.type.codename,
-                                            elements: component.elements
-                                        };
+								// recursively extract data from components as well because they may reference additional assets & content items
+								const extractedComponents = extractReferencedItemsFromMigrationItems(
+									(element.components ?? []).map((component) => {
+										const extractionItem: ExtractItemByCodename = {
+											contentTypeCodename: component.system.type.codename,
+											elements: component.elements,
+										};
 
-                                        return extractionItem;
-                                    }),
-                                    getElement
-                                );
+										return extractionItem;
+									}),
+									getElement,
+								);
 
-                                extractedComponents.itemCodenames.forEach((codename) =>
-                                    childExtractedCodenames.itemCodenames.add(codename)
-                                );
-                                extractedComponents.assetCodenames.forEach((codename) =>
-                                    childExtractedCodenames.assetCodenames.add(codename)
-                                );
-                            })
-                            .with(P.union('modular_content', 'subpages'), () => {
-                                parseAsMigrationReferencesArray(element.value)
-                                    .map((m) => m.codename)
-                                    .forEach((codename) => childExtractedCodenames.itemCodenames.add(codename));
-                            })
-                            .with('asset', () => {
-                                parseAsMigrationReferencesArray(element.value)
-                                    .map((m) => m.codename)
-                                    .forEach((codename) => childExtractedCodenames.assetCodenames.add(codename));
-                            });
+								extractedComponents.itemCodenames.forEach((codename) => {
+									childExtractedCodenames.itemCodenames.add(codename);
+								});
+								extractedComponents.assetCodenames.forEach((codename) => {
+									childExtractedCodenames.assetCodenames.add(codename);
+								});
+							})
+							.with(P.union("modular_content", "subpages"), () => {
+								parseAsMigrationReferencesArray(element.value)
+									.map((m) => m.codename)
+									.forEach((codename) => {
+										childExtractedCodenames.itemCodenames.add(codename);
+									});
+							})
+							.with("asset", () => {
+								parseAsMigrationReferencesArray(element.value)
+									.map((m) => m.codename)
+									.forEach((codename) => {
+										childExtractedCodenames.assetCodenames.add(codename);
+									});
+							});
 
-                        return childExtractedCodenames;
-                    },
-                    extractedCodenames
-                );
-            },
-            {
-                itemCodenames: new Set(),
-                assetCodenames: new Set()
-            }
-        );
+						return childExtractedCodenames;
+					},
+					extractedCodenames,
+				);
+			},
+			{
+				itemCodenames: new Set(),
+				assetCodenames: new Set(),
+			},
+		);
 
-        return {
-            itemCodenames: extractedCodenames.itemCodenames,
-            assetCodenames: extractedCodenames.assetCodenames
-        };
-    };
+		return {
+			itemCodenames: extractedCodenames.itemCodenames,
+			assetCodenames: extractedCodenames.assetCodenames,
+		};
+	};
 
-    return {
-        extractReferencedDataFromExtractItems,
-        extractReferencedItemsFromMigrationItems
-    };
+	return {
+		extractReferencedDataFromExtractItems,
+		extractReferencedItemsFromMigrationItems,
+	};
 }

@@ -1,54 +1,55 @@
-import { confirmMigrateAsync, getDefaultLogger } from '../../../core/index.js';
-import type { SourceExportItem } from '../../../export/index.js';
-import { migrateAsync } from '../../../toolkit/index.js';
-import type { CliArgumentsFetcher } from '../cli.models.js';
+import { getDefaultLogger } from "../../../core/logs/loggers.js";
+import { confirmMigrateAsync } from "../../../core/utils/confirm.utils.js";
+import type { SourceExportItem } from "../../../export/export.models.js";
+import { migrateAsync } from "../../../toolkit/migrate.js";
+import type { CliArgumentsFetcher } from "../cli.models.js";
 
 export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Promise<void> {
-    const logger = getDefaultLogger();
-    const sourceEnvironmentId = argsFetcher.getRequiredArgumentValue('sourceEnvironmentId');
-    const sourceApiKey = argsFetcher.getRequiredArgumentValue('sourceApiKey');
-    const targetEnvironmentId = argsFetcher.getRequiredArgumentValue('targetEnvironmentId');
-    const targetApiKey = argsFetcher.getRequiredArgumentValue('targetApiKey');
-    const force = argsFetcher.getBooleanArgumentValue('force', false);
-    const skipMissingReferences = argsFetcher.getBooleanArgumentValue('skipMissingReferences', false);
-    const items = argsFetcher.getRequiredArgumentValue('items')?.split(',');
-    const language = argsFetcher.getRequiredArgumentValue('language');
-    const migrateItems: readonly SourceExportItem[] = items.map((m) => {
-        return {
-            itemCodename: m,
-            languageCodename: language
-        };
-    });
+	const logger = getDefaultLogger();
+	const sourceEnvironmentId = argsFetcher.getRequiredArgumentValue("sourceEnvironmentId");
+	const sourceApiKey = argsFetcher.getRequiredArgumentValue("sourceApiKey");
+	const targetEnvironmentId = argsFetcher.getRequiredArgumentValue("targetEnvironmentId");
+	const targetApiKey = argsFetcher.getRequiredArgumentValue("targetApiKey");
+	const force = argsFetcher.getBooleanArgumentValue("force", false);
+	const skipMissingReferences = argsFetcher.getBooleanArgumentValue("skipMissingReferences", false);
+	const items = argsFetcher.getRequiredArgumentValue("items").split(",");
+	const language = argsFetcher.getRequiredArgumentValue("language");
+	const migrateItems: readonly SourceExportItem[] = items.map((m) => {
+		return {
+			itemCodename: m,
+			languageCodename: language,
+		};
+	});
 
-    await confirmMigrateAsync({
-        force,
-        sourceEnvironment: {
-            apiKey: sourceApiKey,
-            environmentId: sourceEnvironmentId
-        },
-        targetEnvironment: {
-            apiKey: targetApiKey,
-            environmentId: targetEnvironmentId
-        },
-        logger,
-        dataToMigrate: {
-            itemsCount: migrateItems.length
-        }
-    });
+	await confirmMigrateAsync({
+		force,
+		sourceEnvironment: {
+			apiKey: sourceApiKey,
+			environmentId: sourceEnvironmentId,
+		},
+		targetEnvironment: {
+			apiKey: targetApiKey,
+			environmentId: targetEnvironmentId,
+		},
+		logger,
+		dataToMigrate: {
+			itemsCount: migrateItems.length,
+		},
+	});
 
-    await migrateAsync({
-        logger,
-        sourceEnvironment: {
-            environmentId: sourceEnvironmentId,
-            apiKey: sourceApiKey,
-            items: migrateItems,
-            skipMissingReferences
-        },
-        targetEnvironment: {
-            environmentId: targetEnvironmentId,
-            apiKey: targetApiKey
-        }
-    });
+	await migrateAsync({
+		logger,
+		sourceEnvironment: {
+			environmentId: sourceEnvironmentId,
+			apiKey: sourceApiKey,
+			items: migrateItems,
+			skipMissingReferences,
+		},
+		targetEnvironment: {
+			environmentId: targetEnvironmentId,
+			apiKey: targetApiKey,
+		},
+	});
 
-    logger.log({ type: 'completed', message: `Migration has been successful` });
+	logger.log({ type: "completed", message: `Migration has been successful` });
 }

@@ -1,482 +1,478 @@
 import type {
-    AssetModels,
-    CollectionModels,
-    ContentItemModels,
-    LanguageModels,
-    LanguageVariantModels,
-    WorkflowModels
-} from '@kontent-ai/management-sdk';
-import chalk from 'chalk';
+	AssetModels,
+	CollectionModels,
+	ContentItemModels,
+	LanguageModels,
+	LanguageVariantModels,
+	WorkflowModels,
+} from "@kontent-ai/management-sdk";
+import chalk from "chalk";
+import { workflowHelper } from "../../core/helpers/workflow-helper.js";
 import type {
-    AssetStateInSourceEnvironmentById,
-    FlattenedContentType,
-    ItemStateInSourceEnvironmentById,
-    LogSpinnerData
-} from '../../core/index.js';
-import {
-    findRequired,
-    is404Error,
-    managementClientUtils,
-    processItemsAsync,
-    runMapiRequestAsync,
-    workflowHelper
-} from '../../core/index.js';
-import { itemsExtractionProcessor } from '../../translation/index.js';
+	AssetStateInSourceEnvironmentById,
+	FlattenedContentType,
+	ItemStateInSourceEnvironmentById,
+} from "../../core/models/core.models.js";
+import type { LogSpinnerData } from "../../core/models/log.models.js";
+import { findRequired } from "../../core/utils/array.utils.js";
+import { is404Error } from "../../core/utils/error.utils.js";
+import { managementClientUtils } from "../../core/utils/management-client-utils.js";
+import { processItemsAsync } from "../../core/utils/processing-utils.js";
+import { runMapiRequestAsync } from "../../core/utils/run.utils.js";
+import { itemsExtractionProcessor } from "../../translation/extraction/items-extraction.processor.js";
 import type {
-    DefaultExportContextConfig,
-    ExportContext,
-    ExportContextEnvironmentData,
-    ExportItem,
-    ExportItemVersion,
-    GetFlattenedElementByIds,
-    SourceExportItem
-} from '../export.models.js';
-import { throwErrorForItemRequest } from '../utils/export.utils.js';
+	DefaultExportContextConfig,
+	ExportContext,
+	ExportContextEnvironmentData,
+	ExportItem,
+	ExportItemVersion,
+	GetFlattenedElementByIds,
+	SourceExportItem,
+} from "../export.models.js";
+import { throwErrorForItemRequest } from "../utils/export.utils.js";
 
 export async function exportContextFetcherAsync(config: DefaultExportContextConfig) {
-    const getEnvironmentDataAsync = async (): Promise<ExportContextEnvironmentData> => {
-        const mapiUtils = managementClientUtils(config.managementClient, config.logger);
+	const getEnvironmentDataAsync = async (): Promise<ExportContextEnvironmentData> => {
+		const mapiUtils = managementClientUtils(config.managementClient, config.logger);
 
-        return await config.logger.logWithSpinnerAsync(async (spinnerData) => {
-            spinnerData({ type: 'info', message: `Loading environment data` });
+		return await config.logger.logWithSpinnerAsync(async (spinnerData) => {
+			spinnerData({ type: "info", message: `Loading environment data` });
 
-            const environmentData: ExportContextEnvironmentData = {
-                collections: await mapiUtils.getAllCollectionsAsync(spinnerData),
-                contentTypes: await mapiUtils.getFlattenedContentTypesAsync(spinnerData),
-                languages: await mapiUtils.getAllLanguagesAsync(spinnerData),
-                workflows: await mapiUtils.getAllWorkflowsAsync(spinnerData),
-                taxonomies: await mapiUtils.getAllTaxonomiesAsync(spinnerData),
-                assetFolders: await mapiUtils.getAllAssetFoldersAsync(spinnerData)
-            };
+			const environmentData: ExportContextEnvironmentData = {
+				collections: await mapiUtils.getAllCollectionsAsync(spinnerData),
+				contentTypes: await mapiUtils.getFlattenedContentTypesAsync(spinnerData),
+				languages: await mapiUtils.getAllLanguagesAsync(spinnerData),
+				workflows: await mapiUtils.getAllWorkflowsAsync(spinnerData),
+				taxonomies: await mapiUtils.getAllTaxonomiesAsync(spinnerData),
+				assetFolders: await mapiUtils.getAllAssetFoldersAsync(spinnerData),
+			};
 
-            spinnerData({ type: 'info', message: `Environmental data loaded` });
+			spinnerData({ type: "info", message: `Environmental data loaded` });
 
-            return environmentData;
-        });
-    };
+			return environmentData;
+		});
+	};
 
-    const environmentData = await getEnvironmentDataAsync();
+	const environmentData = await getEnvironmentDataAsync();
 
-    const getContentItemAsync = async (
-        sourceItem: SourceExportItem,
-        logSpinner: LogSpinnerData
-    ): Promise<Readonly<ContentItemModels.ContentItem>> => {
-        return await runMapiRequestAsync({
-            logger: config.logger,
-            logSpinner: logSpinner,
-            func: async () => {
-                return (await config.managementClient.viewContentItem().byItemCodename(sourceItem.itemCodename).toPromise()).data;
-            },
-            action: 'view',
-            type: 'contentItem',
-            itemName: `codename -> ${sourceItem.itemCodename}`
-        });
-    };
+	const getContentItemAsync = async (
+		sourceItem: SourceExportItem,
+		logSpinner: LogSpinnerData,
+	): Promise<Readonly<ContentItemModels.ContentItem>> => {
+		return await runMapiRequestAsync({
+			logger: config.logger,
+			logSpinner: logSpinner,
+			func: async () => {
+				return (await config.managementClient.viewContentItem().byItemCodename(sourceItem.itemCodename).toPromise()).data;
+			},
+			action: "view",
+			type: "contentItem",
+			itemName: `codename -> ${sourceItem.itemCodename}`,
+		});
+	};
 
-    const getLatestLanguageVariantAsync = async (
-        sourceItem: SourceExportItem,
-        logSpinner: LogSpinnerData
-    ): Promise<Readonly<LanguageVariantModels.ContentItemLanguageVariant>> => {
-        return await runMapiRequestAsync({
-            logger: config.logger,
-            logSpinner: logSpinner,
-            func: async () => {
-                return (
-                    await config.managementClient
-                        .viewLanguageVariant()
-                        .byItemCodename(sourceItem.itemCodename)
-                        .byLanguageCodename(sourceItem.languageCodename)
-                        .toPromise()
-                ).data;
-            },
+	const getLatestLanguageVariantAsync = async (
+		sourceItem: SourceExportItem,
+		logSpinner: LogSpinnerData,
+	): Promise<Readonly<LanguageVariantModels.ContentItemLanguageVariant>> => {
+		return await runMapiRequestAsync({
+			logger: config.logger,
+			logSpinner: logSpinner,
+			func: async () => {
+				return (
+					await config.managementClient
+						.viewLanguageVariant()
+						.byItemCodename(sourceItem.itemCodename)
+						.byLanguageCodename(sourceItem.languageCodename)
+						.toPromise()
+				).data;
+			},
 
-            action: 'view',
-            type: 'languageVariant',
-            itemName: `codename -> ${sourceItem.itemCodename} -> latest (${sourceItem.languageCodename})`
-        });
-    };
+			action: "view",
+			type: "languageVariant",
+			itemName: `codename -> ${sourceItem.itemCodename} -> latest (${sourceItem.languageCodename})`,
+		});
+	};
 
-    const isLanguageVariantPublished = (languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>): boolean => {
-        return environmentData.workflows.find((workflow) => workflow.publishedStep.id === languageVariant.workflow.stepIdentifier.id)
-            ? true
-            : false;
-    };
+	const isLanguageVariantPublished = (languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>): boolean => {
+		return environmentData.workflows.some((workflow) => workflow.publishedStep.id === languageVariant.workflow.stepIdentifier.id);
+	};
 
-    const mapToExportVersionItem = (
-        sourceItem: SourceExportItem,
-        contentItem: Readonly<ContentItemModels.ContentItem>,
-        languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>
-    ): ExportItemVersion => {
-        return {
-            languageVariant: languageVariant,
-            workflowStepCodename: validateExportItem({
-                sourceItem: sourceItem,
-                contentItem: contentItem,
-                languageVariant: languageVariant
-            }).workflowStepCodename
-        };
-    };
+	const mapToExportVersionItem = (
+		sourceItem: SourceExportItem,
+		contentItem: Readonly<ContentItemModels.ContentItem>,
+		languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>,
+	): ExportItemVersion => {
+		return {
+			languageVariant: languageVariant,
+			workflowStepCodename: validateExportItem({
+				sourceItem: sourceItem,
+				contentItem: contentItem,
+				languageVariant: languageVariant,
+			}).workflowStepCodename,
+		};
+	};
 
-    const getExportItemVersionsAsync = async (
-        sourceItem: SourceExportItem,
-        contentItem: Readonly<ContentItemModels.ContentItem>,
-        logSpinner: LogSpinnerData
-    ): Promise<readonly ExportItemVersion[]> => {
-        const latestLanguageVariant = await getLatestLanguageVariantAsync(sourceItem, logSpinner);
-        const latestExportVersion = mapToExportVersionItem(sourceItem, contentItem, latestLanguageVariant);
+	const getExportItemVersionsAsync = async (
+		sourceItem: SourceExportItem,
+		contentItem: Readonly<ContentItemModels.ContentItem>,
+		logSpinner: LogSpinnerData,
+	): Promise<readonly ExportItemVersion[]> => {
+		const latestLanguageVariant = await getLatestLanguageVariantAsync(sourceItem, logSpinner);
+		const latestExportVersion = mapToExportVersionItem(sourceItem, contentItem, latestLanguageVariant);
 
-        if (isLanguageVariantPublished(latestLanguageVariant)) {
-            // latest language variant is also published = no need to fetch published version
-            return [latestExportVersion];
-        }
+		if (isLanguageVariantPublished(latestLanguageVariant)) {
+			// latest language variant is also published = no need to fetch published version
+			return [latestExportVersion];
+		}
 
-        const publishedLanguageVariant = await getPublishedLanguageVariantAsync(sourceItem, logSpinner);
+		const publishedLanguageVariant = await getPublishedLanguageVariantAsync(sourceItem, logSpinner);
 
-        if (!publishedLanguageVariant) {
-            return [latestExportVersion];
-        }
+		if (!publishedLanguageVariant) {
+			return [latestExportVersion];
+		}
 
-        return [latestExportVersion, mapToExportVersionItem(sourceItem, contentItem, publishedLanguageVariant)];
-    };
+		return [latestExportVersion, mapToExportVersionItem(sourceItem, contentItem, publishedLanguageVariant)];
+	};
 
-    const getPublishedLanguageVariantAsync = async (
-        sourceItem: SourceExportItem,
-        logSpinner: LogSpinnerData
-    ): Promise<Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined> => {
-        return await runMapiRequestAsync({
-            logger: config.logger,
-            logSpinner: logSpinner,
-            func: async () => {
-                try {
-                    return (
-                        await config.managementClient
-                            .viewLanguageVariant()
-                            .byItemCodename(sourceItem.itemCodename)
-                            .byLanguageCodename(sourceItem.languageCodename)
-                            .published()
-                            .toPromise()
-                    ).data;
-                } catch (error) {
-                    if (is404Error(error)) {
-                        return undefined;
-                    }
-                    throw error;
-                }
-            },
-            action: 'view',
-            type: 'languageVariant',
-            itemName: `codename -> ${sourceItem.itemCodename} -> published (${sourceItem.languageCodename})`
-        });
-    };
+	const getPublishedLanguageVariantAsync = async (
+		sourceItem: SourceExportItem,
+		logSpinner: LogSpinnerData,
+	): Promise<Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined> => {
+		return await runMapiRequestAsync({
+			logger: config.logger,
+			logSpinner: logSpinner,
+			func: async () => {
+				try {
+					return (
+						await config.managementClient
+							.viewLanguageVariant()
+							.byItemCodename(sourceItem.itemCodename)
+							.byLanguageCodename(sourceItem.languageCodename)
+							.published()
+							.toPromise()
+					).data;
+				} catch (error) {
+					if (is404Error(error)) {
+						return undefined;
+					}
+					throw error;
+				}
+			},
+			action: "view",
+			type: "languageVariant",
+			itemName: `codename -> ${sourceItem.itemCodename} -> published (${sourceItem.languageCodename})`,
+		});
+	};
 
-    const validateExportItem = (data: {
-        readonly sourceItem: SourceExportItem;
-        readonly contentItem: Readonly<ContentItemModels.ContentItem>;
-        readonly languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>;
-    }): {
-        readonly collection: Readonly<CollectionModels.Collection>;
-        readonly language: Readonly<LanguageModels.LanguageModel>;
-        readonly workflow: Readonly<WorkflowModels.Workflow>;
-        readonly contentType: Readonly<FlattenedContentType>;
-        readonly workflowStepCodename: string;
-    } => {
-        const collection = findRequired(
-            environmentData.collections,
-            (collection) => collection.id === data.contentItem.collection.id,
-            () => {
-                throwErrorForItemRequest(data.sourceItem, `Invalid collection '${chalk.yellow(data.contentItem.collection.id ?? '')}'`);
-            }
-        );
+	const validateExportItem = (data: {
+		readonly sourceItem: SourceExportItem;
+		readonly contentItem: Readonly<ContentItemModels.ContentItem>;
+		readonly languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>;
+	}): {
+		readonly collection: Readonly<CollectionModels.Collection>;
+		readonly language: Readonly<LanguageModels.LanguageModel>;
+		readonly workflow: Readonly<WorkflowModels.Workflow>;
+		readonly contentType: Readonly<FlattenedContentType>;
+		readonly workflowStepCodename: string;
+	} => {
+		const collection = findRequired(
+			environmentData.collections,
+			(collection) => collection.id === data.contentItem.collection.id,
+			() => {
+				throwErrorForItemRequest(data.sourceItem, `Invalid collection '${chalk.yellow(data.contentItem.collection.id)}'`);
+			},
+		);
 
-        const contentType = findRequired(
-            environmentData.contentTypes,
-            (contentType) => contentType.contentTypeId === data.contentItem.type.id,
-            () => {
-                throwErrorForItemRequest(data.sourceItem, `Invalid content type '${chalk.red(data.contentItem.type.id)}'`);
-            }
-        );
+		const contentType = findRequired(
+			environmentData.contentTypes,
+			(contentType) => contentType.contentTypeId === data.contentItem.type.id,
+			() => {
+				throwErrorForItemRequest(data.sourceItem, `Invalid content type '${chalk.red(data.contentItem.type.id)}'`);
+			},
+		);
 
-        const language = findRequired(
-            environmentData.languages,
-            (language) => language.id === data.languageVariant.language.id,
-            () => {
-                throwErrorForItemRequest(data.sourceItem, `Invalid language '${chalk.red(data.languageVariant.language.id ?? '')}'`);
-            }
-        );
+		const language = findRequired(
+			environmentData.languages,
+			(language) => language.id === data.languageVariant.language.id,
+			() => {
+				throwErrorForItemRequest(data.sourceItem, `Invalid language '${chalk.red(data.languageVariant.language.id ?? "")}'`);
+			},
+		);
 
-        const workflow = findRequired(
-            environmentData.workflows,
-            (workflow) => workflow.id === data.languageVariant.workflow.workflowIdentifier.id,
-            () => {
-                throwErrorForItemRequest(
-                    data.sourceItem,
-                    `Invalid workflow '${chalk.red(data.languageVariant.workflow.workflowIdentifier.id ?? '')}'`
-                );
-            }
-        );
+		const workflow = findRequired(
+			environmentData.workflows,
+			(workflow) => workflow.id === data.languageVariant.workflow.workflowIdentifier.id,
+			() => {
+				throwErrorForItemRequest(
+					data.sourceItem,
+					`Invalid workflow '${chalk.red(data.languageVariant.workflow.workflowIdentifier.id ?? "")}'`,
+				);
+			},
+		);
 
-        const workflowStep = workflowHelper(environmentData.workflows).getWorkflowStep(workflow, {
-            match: (step) => step.id === data.languageVariant.workflow.stepIdentifier.id,
-            errorMessage: `Invalid workflow step '${chalk.red(data.languageVariant.workflow.stepIdentifier.id ?? '')}'`
-        });
+		const workflowStep = workflowHelper(environmentData.workflows).getWorkflowStep(workflow, {
+			match: (step) => step.id === data.languageVariant.workflow.stepIdentifier.id,
+			errorMessage: `Invalid workflow step '${chalk.red(data.languageVariant.workflow.stepIdentifier.id ?? "")}'`,
+		});
 
-        return {
-            collection,
-            language,
-            workflow,
-            contentType,
-            workflowStepCodename: workflowStep.codename
-        };
-    };
+		return {
+			collection,
+			language,
+			workflow,
+			contentType,
+			workflowStepCodename: workflowStep.codename,
+		};
+	};
 
-    const prepareExportItemsAsync = async (exportItems: readonly SourceExportItem[]): Promise<readonly ExportItem[]> => {
-        config.logger.log({
-            type: 'info',
-            message: `Preparing '${chalk.yellow(config.exportItems.length.toString())}' items for export`
-        });
+	const prepareExportItemsAsync = async (exportItems: readonly SourceExportItem[]): Promise<readonly ExportItem[]> => {
+		config.logger.log({
+			type: "info",
+			message: `Preparing '${chalk.yellow(config.exportItems.length.toString())}' items for export`,
+		});
 
-        return (
-            await processItemsAsync<SourceExportItem, ExportItem>({
-                logger: config.logger,
-                action: 'Preparing content items & language variants',
-                parallelLimit: 1,
-                itemInfo: (input) => {
-                    return {
-                        title: `${input.itemCodename} (${input.languageCodename})`,
-                        itemType: 'exportItem'
-                    };
-                },
-                items: exportItems,
-                processAsync: async (requestItem, logSpinner) => {
-                    const contentItem = await getContentItemAsync(requestItem, logSpinner);
-                    const versions = await getExportItemVersionsAsync(requestItem, contentItem, logSpinner);
+		return (
+			await processItemsAsync<SourceExportItem, ExportItem>({
+				logger: config.logger,
+				action: "Preparing content items & language variants",
+				parallelLimit: 1,
+				itemInfo: (input) => {
+					return {
+						title: `${input.itemCodename} (${input.languageCodename})`,
+						itemType: "exportItem",
+					};
+				},
+				items: exportItems,
+				processAsync: async (requestItem, logSpinner) => {
+					const contentItem = await getContentItemAsync(requestItem, logSpinner);
+					const versions = await getExportItemVersionsAsync(requestItem, contentItem, logSpinner);
 
-                    // get shared attributes from any version
-                    const anyVersion = versions[0];
-                    if (!anyVersion) {
-                        throwErrorForItemRequest(requestItem, `Expected at least 1 version of the content item`);
-                    }
+					// get shared attributes from any version
+					const anyVersion = versions.length ? versions[0] : undefined;
+					if (!anyVersion) {
+						throwErrorForItemRequest(requestItem, `Expected at least 1 version of the content item`);
+					}
 
-                    const { collection, contentType, language, workflow } = validateExportItem({
-                        sourceItem: requestItem,
-                        contentItem: contentItem,
-                        languageVariant: anyVersion.languageVariant
-                    });
+					const { collection, contentType, language, workflow } = validateExportItem({
+						sourceItem: requestItem,
+						contentItem: contentItem,
+						languageVariant: anyVersion.languageVariant,
+					});
 
-                    return {
-                        contentItem,
-                        versions,
-                        contentType,
-                        requestItem,
-                        workflow,
-                        collection,
-                        language
-                    };
-                }
-            })
-        )
-            .filter((m) => m.state === 'valid')
-            .map((m) => m.outputItem);
-    };
+					return {
+						contentItem,
+						versions,
+						contentType,
+						requestItem,
+						workflow,
+						collection,
+						language,
+					};
+				},
+			})
+		)
+			.filter((m) => m.state === "valid")
+			.map((m) => m.outputItem);
+	};
 
-    const getContentItemsByIdsAsync = async (itemIds: ReadonlySet<string>): Promise<readonly Readonly<ContentItemModels.ContentItem>[]> => {
-        return (
-            await processItemsAsync<string, Readonly<ContentItemModels.ContentItem>>({
-                logger: config.logger,
-                action: 'Fetching content items',
-                parallelLimit: 1,
-                items: Array.from(itemIds),
-                itemInfo: (id) => {
-                    return {
-                        itemType: 'contentItem',
-                        title: id
-                    };
-                },
-                processAsync: async (id, logSpinner) => {
-                    try {
-                        return await runMapiRequestAsync({
-                            logSpinner: logSpinner,
-                            logger: config.logger,
-                            func: async () => (await config.managementClient.viewContentItem().byItemId(id).toPromise()).data,
-                            action: 'view',
-                            type: 'contentItem',
-                            itemName: `id -> ${id}`
-                        });
-                    } catch (error) {
-                        if (!is404Error(error)) {
-                            throw error;
-                        }
+	const getContentItemsByIdsAsync = async (itemIds: ReadonlySet<string>): Promise<readonly Readonly<ContentItemModels.ContentItem>[]> => {
+		return (
+			await processItemsAsync<string, Readonly<ContentItemModels.ContentItem>>({
+				logger: config.logger,
+				action: "Fetching content items",
+				parallelLimit: 1,
+				items: Array.from(itemIds),
+				itemInfo: (id) => {
+					return {
+						itemType: "contentItem",
+						title: id,
+					};
+				},
+				processAsync: async (id, logSpinner) => {
+					try {
+						return await runMapiRequestAsync({
+							logSpinner: logSpinner,
+							logger: config.logger,
+							func: async () => (await config.managementClient.viewContentItem().byItemId(id).toPromise()).data,
+							action: "view",
+							type: "contentItem",
+							itemName: `id -> ${id}`,
+						});
+					} catch (error) {
+						if (!is404Error(error)) {
+							throw error;
+						}
 
-                        return '404';
-                    }
-                }
-            })
-        )
-            .filter((m) => m.state === 'valid')
-            .map((m) => m.outputItem);
-    };
+						return "404";
+					}
+				},
+			})
+		)
+			.filter((m) => m.state === "valid")
+			.map((m) => m.outputItem);
+	};
 
-    const getAssetsByIdsAsync = async (itemIds: ReadonlySet<string>): Promise<readonly Readonly<AssetModels.Asset>[]> => {
-        return (
-            await processItemsAsync<string, Readonly<AssetModels.Asset>>({
-                logger: config.logger,
-                action: 'Fetching assets',
-                parallelLimit: 1,
-                items: Array.from(itemIds),
-                itemInfo: (id) => {
-                    return {
-                        itemType: 'asset',
-                        title: id
-                    };
-                },
-                processAsync: async (id, logSpinner) => {
-                    try {
-                        return await runMapiRequestAsync({
-                            logger: config.logger,
-                            logSpinner: logSpinner,
-                            func: async () => (await config.managementClient.viewAsset().byAssetId(id).toPromise()).data,
-                            action: 'view',
-                            type: 'asset',
-                            itemName: `id -> ${id}`
-                        });
-                    } catch (error) {
-                        if (!is404Error(error)) {
-                            throw error;
-                        }
+	const getAssetsByIdsAsync = async (itemIds: ReadonlySet<string>): Promise<readonly Readonly<AssetModels.Asset>[]> => {
+		return (
+			await processItemsAsync<string, Readonly<AssetModels.Asset>>({
+				logger: config.logger,
+				action: "Fetching assets",
+				parallelLimit: 1,
+				items: Array.from(itemIds),
+				itemInfo: (id) => {
+					return {
+						itemType: "asset",
+						title: id,
+					};
+				},
+				processAsync: async (id, logSpinner) => {
+					try {
+						return await runMapiRequestAsync({
+							logger: config.logger,
+							logSpinner: logSpinner,
+							func: async () => (await config.managementClient.viewAsset().byAssetId(id).toPromise()).data,
+							action: "view",
+							type: "asset",
+							itemName: `id -> ${id}`,
+						});
+					} catch (error) {
+						if (!is404Error(error)) {
+							throw error;
+						}
 
-                        return '404';
-                    }
-                }
-            })
-        )
-            .filter((m) => m.state === 'valid')
-            .map((m) => m.outputItem);
-    };
+						return "404";
+					}
+				},
+			})
+		)
+			.filter((m) => m.state === "valid")
+			.map((m) => m.outputItem);
+	};
 
-    const getItemStatesAsync = async (itemIds: ReadonlySet<string>): Promise<readonly ItemStateInSourceEnvironmentById[]> => {
-        const items = await getContentItemsByIdsAsync(itemIds);
+	const getItemStatesAsync = async (itemIds: ReadonlySet<string>): Promise<readonly ItemStateInSourceEnvironmentById[]> => {
+		const items = await getContentItemsByIdsAsync(itemIds);
 
-        return Array.from(itemIds).map<ItemStateInSourceEnvironmentById>((itemId) => {
-            const item = items.find((m) => m.id === itemId);
+		return Array.from(itemIds).map<ItemStateInSourceEnvironmentById>((itemId) => {
+			const item = items.find((m) => m.id === itemId);
 
-            if (item) {
-                return {
-                    id: itemId,
-                    data: item,
-                    state: 'exists'
-                }
-            }
-            if (config.skipMissingReferences) {
-                return {
-                    id: itemId,
-                    state: 'skip'
-                }
-            }
-            return {
-                id: itemId,
-                state: 'doesNotExists'
-            };
-        });
-    };
+			if (item) {
+				return {
+					id: itemId,
+					data: item,
+					state: "exists",
+				};
+			}
+			if (config.skipMissingReferences) {
+				return {
+					id: itemId,
+					state: "skip",
+				};
+			}
+			return {
+				id: itemId,
+				state: "doesNotExists",
+			};
+		});
+	};
 
-    const getAssetStatesAsync = async (assetIds: ReadonlySet<string>): Promise<readonly AssetStateInSourceEnvironmentById[]> => {
-        const assets = await getAssetsByIdsAsync(assetIds);
+	const getAssetStatesAsync = async (assetIds: ReadonlySet<string>): Promise<readonly AssetStateInSourceEnvironmentById[]> => {
+		const assets = await getAssetsByIdsAsync(assetIds);
 
-        return Array.from(assetIds).map<AssetStateInSourceEnvironmentById>((assetId) => {
-            const asset = assets.find((m) => m.id === assetId);
+		return Array.from(assetIds).map<AssetStateInSourceEnvironmentById>((assetId) => {
+			const asset = assets.find((m) => m.id === assetId);
 
-            if (asset) {
-                return {
-                    id: assetId,
-                    data: asset,
-                    state: 'exists'
-                };
-            }
-            if (config.skipMissingReferences) {
-                return {
-                    id: assetId,
-                    state: 'skip'
-                };
-            }
-            return {
-                id: assetId,
-                state: 'doesNotExists'
-            };
-        });
-    };
+			if (asset) {
+				return {
+					id: assetId,
+					data: asset,
+					state: "exists",
+				};
+			}
+			if (config.skipMissingReferences) {
+				return {
+					id: assetId,
+					state: "skip",
+				};
+			}
+			return {
+				id: assetId,
+				state: "doesNotExists",
+			};
+		});
+	};
 
-    const getElementByIds = (): GetFlattenedElementByIds => {
-        const getFunc: GetFlattenedElementByIds = (contentTypeId: string, elementId: string) => {
-            const contentType = findRequired(
-                environmentData.contentTypes,
-                (contentType) => contentType.contentTypeId === contentTypeId,
-                `Could not find content type with id '${chalk.red(contentTypeId)}'`
-            );
+	const getElementByIds = (): GetFlattenedElementByIds => {
+		const getFunc: GetFlattenedElementByIds = (contentTypeId: string, elementId: string) => {
+			const contentType = findRequired(
+				environmentData.contentTypes,
+				(contentType) => contentType.contentTypeId === contentTypeId,
+				`Could not find content type with id '${chalk.red(contentTypeId)}'`,
+			);
 
-            const element = findRequired(
-                contentType.elements,
-                (element) => element.id === elementId,
-                `Could not find element with id '${chalk.red(elementId)}' in content type '${chalk.red(contentType.contentTypeCodename)}'`
-            );
+			const element = findRequired(
+				contentType.elements,
+				(element) => element.id === elementId,
+				`Could not find element with id '${chalk.red(elementId)}' in content type '${chalk.red(contentType.contentTypeCodename)}'`,
+			);
 
-            return element;
-        };
+			return element;
+		};
 
-        return getFunc;
-    };
+		return getFunc;
+	};
 
-    const getExportContextAsync = async (): Promise<ExportContext> => {
-        const preparedItems = await prepareExportItemsAsync(config.exportItems);
+	const getExportContextAsync = async (): Promise<ExportContext> => {
+		const preparedItems = await prepareExportItemsAsync(config.exportItems);
 
-        config.logger.log({
-            type: 'info',
-            message: `Extracting referenced items & assets from content`
-        });
+		config.logger.log({
+			type: "info",
+			message: `Extracting referenced items & assets from content`,
+		});
 
-        const referencedData = itemsExtractionProcessor().extractReferencedDataFromExtractItems(
-            preparedItems.map((exportItem) => {
-                return {
-                    contentTypeId: exportItem.contentType.contentTypeId,
-                    elements: exportItem.versions.flatMap((m) => m.languageVariant).flatMap((s) => s.elements)
-                };
-            }),
-            getElementByIds()
-        );
+		const referencedData = itemsExtractionProcessor().extractReferencedDataFromExtractItems(
+			preparedItems.map((exportItem) => {
+				return {
+					contentTypeId: exportItem.contentType.contentTypeId,
+					elements: exportItem.versions.flatMap((m) => m.languageVariant).flatMap((s) => s.elements),
+				};
+			}),
+			getElementByIds(),
+		);
 
-        const itemStates: readonly ItemStateInSourceEnvironmentById[] = await getItemStatesAsync(
-            // fetch both referenced items and items that are set to be exported
-            new Set<string>([...referencedData.itemIds, ...preparedItems.map((m) => m.contentItem.id)])
-        );
-        const assetStates: readonly AssetStateInSourceEnvironmentById[] = await getAssetStatesAsync(
-            new Set<string>([...referencedData.assetIds])
-        );
+		const itemStates: readonly ItemStateInSourceEnvironmentById[] = await getItemStatesAsync(
+			// fetch both referenced items and items that are set to be exported
+			new Set<string>([...referencedData.itemIds, ...preparedItems.map((m) => m.contentItem.id)]),
+		);
+		const assetStates: readonly AssetStateInSourceEnvironmentById[] = await getAssetStatesAsync(
+			new Set<string>([...referencedData.assetIds]),
+		);
 
-        const exportContext: ExportContext = {
-            getElement: getElementByIds(),
-            exportItems: preparedItems,
-            environmentData: environmentData,
-            referencedData: referencedData,
-            exportContextOptions: {
-                skipMissingReferences: config.skipMissingReferences ?? false
-            },
-            getAssetStateInSourceEnvironment: (id) =>
-                findRequired(
-                    assetStates,
-                    (m) => m.id === id,
-                    `Invalid state for asset '${chalk.red(id)}'. It is expected that all asset states will be initialized`
-                ),
-            getItemStateInSourceEnvironment: (id) =>
-                findRequired(
-                    itemStates,
-                    (m) => m.id === id,
-                    `Invalid state for item '${chalk.red(id)}'. It is expected that all item states will be initialized`
-                )
-        };
+		const exportContext: ExportContext = {
+			getElement: getElementByIds(),
+			exportItems: preparedItems,
+			environmentData: environmentData,
+			referencedData: referencedData,
+			exportContextOptions: {
+				skipMissingReferences: config.skipMissingReferences,
+			},
+			getAssetStateInSourceEnvironment: (id) =>
+				findRequired(
+					assetStates,
+					(m) => m.id === id,
+					`Invalid state for asset '${chalk.red(id)}'. It is expected that all asset states will be initialized`,
+				),
+			getItemStateInSourceEnvironment: (id) =>
+				findRequired(
+					itemStates,
+					(m) => m.id === id,
+					`Invalid state for item '${chalk.red(id)}'. It is expected that all item states will be initialized`,
+				),
+		};
 
-        return exportContext;
-    };
+		return exportContext;
+	};
 
-    return {
-        getExportContextAsync
-    };
+	return {
+		getExportContextAsync,
+	};
 }

@@ -1,11 +1,11 @@
-import fs from 'fs';
-import chalk from 'chalk';
+import fs from "node:fs";
+import chalk from "chalk";
 
-removePath('dist');
+removePath("dist");
 
 function removePath(path: string): void {
-    if (fs.existsSync(path)) {
-        fs.rmSync(path, { recursive: true });
-        console.log(`Path '${chalk.yellow(path)}' has been deleted`);
-    }
+	if (fs.existsSync(path)) {
+		fs.rmSync(path, { recursive: true });
+		console.log(`Path '${chalk.yellow(path)}' has been deleted`);
+	}
 }
