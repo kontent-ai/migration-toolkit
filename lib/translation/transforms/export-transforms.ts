@@ -273,7 +273,6 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!itemInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
-                // Return a placeholder that will be help explain the missing item
                 return { codename: getMissingReferencePlaceholder({ type: 'item', id }) };
             }
             throw new MissingItemError(id);
@@ -290,7 +289,6 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!assetInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
-                // Return a placeholder that will be help explain the missing item
                 return { codename: getMissingReferencePlaceholder({ type: 'asset', id }) };
             }
             throw new MissingAssetError(id);
@@ -307,7 +305,6 @@ function transformRichTextValue(exportElement: ExportElement, context: ExportCon
 
         if (!assetInEnv) {
             if (context.exportContextOptions.skipMissingReferences) {
-                // Return a placeholder that will be help explain the missing item
                 return { codename: getMissingReferencePlaceholder({ type: 'asset', id }) };
             }
             throw new MissingAssetError(id);
