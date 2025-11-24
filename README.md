@@ -56,7 +56,7 @@ You may migrate content (items & asset) between Kontent.ai environments. For mig
 | **language**                  | Codename of language that items will be exported in **(required)**                                    |
 | **items**                     | Comma separated list of items that will be exported **(required)**                                    |
 | force                         | Can be used to disable confirmation prompts. Available options: `true` & `false`. Defaults to `false` |
-| skipMissingReferences     | When enabled, missing items and assets will be skipped. Available options: `true` & `false`. Defaults to `false` |
+| skipMissingReferences     | When enabled, missing items and assets will be skipped instead of throwing errors. Missing references will be filtered out from exported data. Available options: `true` & `false`. Defaults to `false` |
 
 ## Migrate CLI
 
