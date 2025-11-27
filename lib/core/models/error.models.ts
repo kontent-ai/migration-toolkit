@@ -61,14 +61,46 @@ export class InvalidValueError extends MigrationToolkitError {
 		readonly value: unknown;
 		readonly errorData: ErrorData;
 	}) {
-		const isMissingReferenceError = errorData.error instanceof MissingAssetError || errorData.error instanceof MissingItemError;
-		let jsonValue: string | undefined;
+		const { missingReferenceId, isMissingReference } = match(errorData.error)
+			.returnType<{ readonly missingReferenceId: string | undefined; readonly isMissingReference: boolean }>()
+			.when(
+				(m) => m instanceof MissingAssetError || m instanceof MissingItemError,
+				(m) => {
+					return {
+						missingReferenceId: m.id,
+						isMissingReference: true,
+					};
+				},
+			)
+			.otherwise(() => {
+				return {
+					missingReferenceId: undefined,
+					isMissingReference: false,
+				};
+			});
 
-		try {
-			jsonValue = JSON.stringify(value, null, 2);
-		} catch {
-			jsonValue = undefined;
-		}
+		const getValueToDisplay = () => {
+			let jsonValue: string | undefined;
+
+			try {
+				jsonValue = JSON.stringify(value, null, 2);
+			} catch {
+				jsonValue = undefined;
+			}
+
+			const baseValue = match(jsonValue)
+				.returnType<string>()
+				.with(P.string, (jsonValue) =>
+					jsonValue
+						.split("\n")
+						.map((line) => `  ${line}`)
+						.join("\n"),
+				)
+				.otherwise(() => value?.toString() ?? "");
+
+			// Highlight missing reference ID in red if present
+			return missingReferenceId ? baseValue.replaceAll(missingReferenceId, chalk.red(missingReferenceId)) : baseValue;
+		};
 
 		const lines: readonly string[] = [
 			"",
@@ -95,17 +127,7 @@ export class InvalidValueError extends MigrationToolkitError {
 			`  ${chalk.gray("└─")} Language variant: ${chalk.yellow.bold(exportItemVersion.languageVariant.language.codename)}`,
 			"",
 			chalk.cyan("Invalid Value:"),
-			chalk.dim(
-				match(jsonValue)
-					.returnType<unknown>()
-					.with(P.string, (jsonValue) =>
-						jsonValue
-							.split("\n")
-							.map((line) => `  ${line}`)
-							.join("\n"),
-					)
-					.otherwise(() => value),
-			),
+			chalk.dim(getValueToDisplay()),
 			"",
 			...match(errorData.message)
 				.returnType<readonly string[]>()
@@ -115,7 +137,7 @@ export class InvalidValueError extends MigrationToolkitError {
 				.returnType<readonly string[]>()
 				.with(P.string, (requestUrl) => [chalk.cyan("Request URL:"), chalk.gray(`  ${requestUrl}`), ""])
 				.otherwise(() => []),
-			...match(isMissingReferenceError)
+			...match(isMissingReference)
 				.returnType<readonly string[]>()
 				.with(true, () => [chalk.cyan("💡 Tip:"), chalk.gray(`  ${missingReferencesMessage}`), ""])
 				.otherwise(() => []),
