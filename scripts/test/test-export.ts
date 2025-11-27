@@ -29,6 +29,7 @@ const run = async () => {
 		force: false,
 		apiKey: apiKey,
 		environmentId: environmentId,
+		skipMissingReferences: true,
 		logger: logger,
 		dataToExport: {
 			itemsCount: exportItem.length,

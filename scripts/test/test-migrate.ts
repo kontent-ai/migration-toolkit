@@ -33,6 +33,7 @@ const run = async () => {
 			apiKey: targetApiKey,
 			environmentId: targetEnvironmentId,
 		},
+		skipMissingReferences: false,
 		logger: logger,
 		dataToMigrate: {
 			itemsCount: itemsToMigrate.length,

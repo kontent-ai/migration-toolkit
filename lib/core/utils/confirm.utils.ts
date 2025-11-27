@@ -1,4 +1,6 @@
+import type { EnvironmentModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
+import { match, P } from "ts-pattern";
 import { MigrationToolkitError } from "../models/error.models.js";
 import type { Logger } from "../models/log.models.js";
 import { getMigrationManagementClient, managementClientUtils } from "./management-client-utils.js";
@@ -8,6 +10,7 @@ export async function confirmExportAsync(data: {
 	readonly environmentId: string;
 	readonly apiKey: string;
 	readonly logger: Logger;
+	readonly skipMissingReferences: boolean;
 	readonly dataToExport: {
 		readonly itemsCount: number;
 	};
@@ -20,9 +23,12 @@ export async function confirmExportAsync(data: {
 		data.logger,
 	).getEnvironmentAsync();
 
-	const text: string = `Are you sure to export '${chalk.cyan(data.dataToExport.itemsCount)}' content ${getItemsPluralText(
-		data.dataToExport.itemsCount,
-	)} from ${chalk.yellow(environment.name)} (${chalk.magenta(environment.environment)})?`;
+	const text = getConfirmText({
+		action: "export",
+		itemsCount: data.dataToExport.itemsCount,
+		sourceEnvironment: environment,
+		skipMissingReferences: data.skipMissingReferences,
+	});
 
 	await confirmAsync({
 		force: data.force,
@@ -42,6 +48,7 @@ export async function confirmMigrateAsync(data: {
 		readonly environmentId: string;
 		readonly apiKey: string;
 	};
+	readonly skipMissingReferences: boolean;
 	readonly logger: Logger;
 	readonly dataToMigrate: {
 		readonly itemsCount: number;
@@ -62,11 +69,13 @@ export async function confirmMigrateAsync(data: {
 		data.logger,
 	).getEnvironmentAsync();
 
-	const text: string = `Are you sure to migrate '${chalk.cyan(data.dataToMigrate.itemsCount)}' ${getItemsPluralText(
-		data.dataToMigrate.itemsCount,
-	)} from ${chalk.yellow(sourceEnvironment.name)} (${chalk.magenta(sourceEnvironment.environment)}) to environment ${chalk.yellow(
-		targetEnvironment.name,
-	)} (${chalk.magenta(targetEnvironment.environment)}) ?`;
+	const text = getConfirmText({
+		action: "migrate",
+		itemsCount: data.dataToMigrate.itemsCount,
+		sourceEnvironment,
+		targetEnvironment,
+		skipMissingReferences: data.skipMissingReferences,
+	});
 
 	await confirmAsync({
 		force: data.force,
@@ -90,7 +99,11 @@ export async function confirmImportAsync(data: {
 		data.logger,
 	).getEnvironmentAsync();
 
-	const text: string = `Are you sure to import data into ${chalk.yellow(environment.name)} (${chalk.magenta(environment.environment)})?`;
+	const text = getConfirmText({
+		action: "import",
+		targetEnvironment: environment,
+		itemsCount: undefined,
+	});
 
 	await confirmAsync({
 		force: data.force,
@@ -129,6 +142,70 @@ async function confirmAsync(data: {
 	}
 }
 
-function getItemsPluralText(count: number): string {
-	return count === 1 ? "item" : "items";
+function getConfirmText({
+	action,
+	itemsCount,
+	sourceEnvironment,
+	targetEnvironment,
+	skipMissingReferences,
+}: {
+	readonly action: "export" | "import" | "migrate";
+	readonly skipMissingReferences?: boolean;
+	readonly itemsCount?: number;
+	readonly sourceEnvironment?: EnvironmentModels.EnvironmentInformationModel;
+	readonly targetEnvironment?: EnvironmentModels.EnvironmentInformationModel;
+}): string {
+	const lines: readonly string[] = [
+		`\n${"=".repeat(70)}`,
+		...match(action)
+			.returnType<readonly string[]>()
+			.with("export", () => [
+				`${chalk.bold.white("📤 SOURCE ENVIRONMENT:")}`,
+				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(sourceEnvironment?.name)}`,
+				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(sourceEnvironment?.environment)}`,
+				`  ${chalk.gray("└─")} ID:          ${chalk.dim(sourceEnvironment?.id)}`,
+			])
+			.with("import", () => [
+				`${chalk.bold.white("📥 TARGET ENVIRONMENT:")}`,
+				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
+				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
+				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
+			])
+			.with("migrate", () => [
+				`${chalk.bold.white("📤 SOURCE ENVIRONMENT:")}`,
+				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(sourceEnvironment?.name)}`,
+				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(sourceEnvironment?.environment)}`,
+				`  ${chalk.gray("└─")} ID:          ${chalk.dim(sourceEnvironment?.id)}`,
+				`${chalk.bold.white("📥 TARGET ENVIRONMENT:")}`,
+				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
+				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
+				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
+			])
+			.exhaustive(),
+		"\n",
+		...match(itemsCount)
+			.returnType<readonly string[]>()
+			.with(P.nonNullable, (itemsCount) => [
+				`${chalk.bold.white("📦 ITEMS TO PROCESS:")}`,
+				`  ${chalk.gray("├─")} Count: ${chalk.green.bold(itemsCount)}`,
+				"",
+			])
+			.otherwise(() => []),
+		...match(action)
+			.returnType<readonly string[]>()
+			.with(P.union("export", "migrate"), () => [
+				`${chalk.bold.white("⚙️  CONFIGURATION:")}`,
+				`  ${chalk.gray("└─")} Skip missing references: ${chalk.green.bold(skipMissingReferences ? "Yes" : "No")}`,
+				"",
+			])
+			.otherwise(() => []),
+		`${chalk.yellow("⚠")}  ${match(action)
+			.returnType<string>()
+			.with("export", () => "Are you sure you want to export the data?")
+			.with("import", () => "Are you sure you want to import the data?")
+			.with("migrate", () => "Are you sure you want to migrate the data?")
+			.exhaustive()}`,
+	];
+
+	return lines.join("\n");
 }

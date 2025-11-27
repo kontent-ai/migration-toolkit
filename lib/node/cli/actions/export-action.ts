@@ -24,6 +24,7 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
 		dataToExport: {
 			itemsCount: items.length,
 		},
+		skipMissingReferences,
 	});
 
 	const exportedData = await exportAsync({

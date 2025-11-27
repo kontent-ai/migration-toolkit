@@ -22,6 +22,7 @@ export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Prom
 	});
 
 	await confirmMigrateAsync({
+		skipMissingReferences,
 		force,
 		sourceEnvironment: {
 			apiKey: sourceApiKey,
