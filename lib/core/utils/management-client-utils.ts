@@ -134,6 +134,7 @@ export function managementClientUtils(client: Readonly<ManagementClient>, logger
 
 						const flattenedElement: FlattenedContentTypeElement = {
 							codename: snippetElement.codename,
+							name: snippetElement.name,
 							type: snippetElement.type,
 							id: snippetElement.id,
 							element: snippetElement,
@@ -144,6 +145,7 @@ export function managementClientUtils(client: Readonly<ManagementClient>, logger
 				}
 				const flattenedElement: FlattenedContentTypeElement = {
 					codename: element.codename,
+					name: element.name,
 					id: element.id,
 					type: element.type,
 					element: element,
@@ -174,6 +176,7 @@ export function managementClientUtils(client: Readonly<ManagementClient>, logger
 		return [
 			...contentTypes.map((contentType) => {
 				const importType: FlattenedContentType = {
+					name: contentType.name,
 					contentTypeCodename: contentType.codename,
 					contentTypeId: contentType.id,
 					elements: getContentTypeElements(contentType, contentTypeSnippets),

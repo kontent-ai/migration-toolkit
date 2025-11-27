@@ -81,5 +81,5 @@ export function handleError(error: unknown): void {
 		console.log(`${chalk.red("Request url")}: ${errorData.requestUrl}`);
 	}
 
-	console.error(`${chalk.red("Error:")} ${errorData.message}`);
+	console.error(errorData.message);
 }

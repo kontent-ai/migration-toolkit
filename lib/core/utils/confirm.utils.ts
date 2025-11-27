@@ -160,23 +160,23 @@ function getConfirmText({
 		...match(action)
 			.returnType<readonly string[]>()
 			.with("export", () => [
-				`${chalk.bold.white("📤 SOURCE ENVIRONMENT:")}`,
+				`${chalk.cyan("📤 Source environment:")}`,
 				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(sourceEnvironment?.name)}`,
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(sourceEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(sourceEnvironment?.id)}`,
 			])
 			.with("import", () => [
-				`${chalk.bold.white("📥 TARGET ENVIRONMENT:")}`,
+				`${chalk.cyan("📥 Target environment:")}`,
 				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
 			])
 			.with("migrate", () => [
-				`${chalk.bold.white("📤 SOURCE ENVIRONMENT:")}`,
+				`${chalk.cyan("📤 Source environment:")}`,
 				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(sourceEnvironment?.name)}`,
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(sourceEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(sourceEnvironment?.id)}`,
-				`${chalk.bold.white("📥 TARGET ENVIRONMENT:")}`,
+				`${chalk.cyan("📥 Target environment:")}`,
 				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
@@ -186,7 +186,7 @@ function getConfirmText({
 		...match(itemsCount)
 			.returnType<readonly string[]>()
 			.with(P.nonNullable, (itemsCount) => [
-				`${chalk.bold.white("📦 ITEMS TO PROCESS:")}`,
+				`${chalk.cyan("📦 Items to process:")}`,
 				`  ${chalk.gray("├─")} Count: ${chalk.green.bold(itemsCount)}`,
 				"",
 			])
@@ -194,7 +194,7 @@ function getConfirmText({
 		...match(action)
 			.returnType<readonly string[]>()
 			.with(P.union("export", "migrate"), () => [
-				`${chalk.bold.white("⚙️  CONFIGURATION:")}`,
+				`${chalk.cyan("⚙️  Configuration:")}`,
 				`  ${chalk.gray("└─")} Skip missing references: ${chalk.green.bold(skipMissingReferences ? "Yes" : "No")}`,
 				"",
 			])

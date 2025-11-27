@@ -3,7 +3,7 @@ import chalk from "chalk";
 import type { Writeable } from "zod/v3";
 import { getDefaultLogger } from "../core/logs/loggers.js";
 import type { FlattenedContentType, FlattenedContentTypeElement } from "../core/models/core.models.js";
-import { MigrationToolkitError } from "../core/models/error.models.js";
+import { InvalidValueError, MigrationToolkitError } from "../core/models/error.models.js";
 import type {
 	MigrationAsset,
 	MigrationComponent,
@@ -144,19 +144,13 @@ export function exportManager(config: ExportConfig) {
 			});
 		} catch (error) {
 			const errorData = extractErrorData(error);
-			let jsonValue = "n/a";
 
-			try {
-				jsonValue = JSON.stringify(data.exportElement.value);
-			} catch (jsonError) {
-				console.error(`Failed to convert json value`, jsonError);
-			}
-
-			throw new Error(
-				`Failed to map value of element '${chalk.yellow(data.typeElement.codename)}' of type '${chalk.cyan(
-					data.typeElement.type,
-				)}'. Value: ${chalk.bgMagenta(jsonValue)}. Message: ${errorData.message}`,
-			);
+			throw new InvalidValueError({
+				element: data.typeElement,
+				contentType: data.contentType,
+				value: data.exportElement.value,
+				errorData: errorData,
+			});
 		}
 	};
 

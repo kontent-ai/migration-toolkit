@@ -137,6 +137,7 @@ export interface PackageDataOverview {
 
 export interface FlattenedContentTypeElement {
 	readonly codename: string;
+	readonly name: string | undefined;
 	readonly id: string;
 	readonly type: MigrationElementType;
 	readonly element: Readonly<ContentTypeElements.ContentTypeElementModel>;
@@ -144,6 +145,7 @@ export interface FlattenedContentTypeElement {
 
 export interface FlattenedContentType {
 	readonly contentTypeCodename: string;
+	readonly name: string;
 	readonly contentTypeId: string;
 	readonly elements: readonly FlattenedContentTypeElement[];
 }
