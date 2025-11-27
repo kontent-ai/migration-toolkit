@@ -20,9 +20,10 @@ import { extractErrorData } from "../core/utils/error.utils.js";
 import { isNotUndefined } from "../core/utils/global.utils.js";
 import { getMigrationManagementClient } from "../core/utils/management-client-utils.js";
 import { processItemsAsync } from "../core/utils/processing-utils.js";
+import { tryCatch } from "../core/utils/try.utils.js";
 import { exportTransforms } from "../translation/transforms/export-transforms.js";
 import { exportContextFetcherAsync } from "./context/export-context-fetcher.js";
-import type { ExportConfig, ExportContext, ExportItem } from "./export.models.js";
+import type { ExportConfig, ExportContext, ExportItem, ExportItemVersion } from "./export.models.js";
 
 export function exportManager(config: ExportConfig) {
 	const logger = config.logger ?? getDefaultLogger();
@@ -45,8 +46,8 @@ export function exportManager(config: ExportConfig) {
 				},
 			},
 			versions: exportItem.versions.map<MigrationItemVersion>((version) => {
-				return {
-					elements: getMigrationElements(context, exportItem.contentType, version.languageVariant.elements),
+				const migrationItemVersion: MigrationItemVersion = {
+					elements: getMigrationElements(exportItem, version, context, exportItem.contentType, version.languageVariant.elements),
 					schedule: {
 						publish_time: version.languageVariant.schedule.publishTime ?? undefined,
 						publish_display_timezone: version.languageVariant.schedule.publishDisplayTimezone ?? undefined,
@@ -57,6 +58,8 @@ export function exportManager(config: ExportConfig) {
 						codename: version.workflowStepCodename,
 					},
 				};
+
+				return migrationItemVersion;
 			}),
 		};
 
@@ -64,6 +67,8 @@ export function exportManager(config: ExportConfig) {
 	};
 
 	const mapToMigrationComponent = (
+		exportItem: ExportItem,
+		exportItemVersion: ExportItemVersion,
 		context: ExportContext,
 		component: Readonly<ElementModels.ContentItemElementComponent>,
 	): MigrationComponent => {
@@ -83,13 +88,15 @@ export function exportManager(config: ExportConfig) {
 					codename: componentType.contentTypeCodename,
 				},
 			},
-			elements: getMigrationElements(context, componentType, component.elements),
+			elements: getMigrationElements(exportItem, exportItemVersion, context, componentType, component.elements),
 		};
 
 		return migrationItem;
 	};
 
 	const getMigrationElements = (
+		exportItem: ExportItem,
+		exportItemVersion: ExportItemVersion,
 		context: ExportContext,
 		contentType: FlattenedContentType,
 		elements: readonly Readonly<ElementModels.ContentItemElement>[],
@@ -114,6 +121,8 @@ export function exportManager(config: ExportConfig) {
 				model[typeElement.codename] = {
 					type: typeElement.type,
 					...getMigrationElementToStore({
+						exportItem: exportItem,
+						exportItemVersion: exportItemVersion,
 						context: context,
 						contentType: contentType,
 						exportElement: itemElement,
@@ -126,32 +135,46 @@ export function exportManager(config: ExportConfig) {
 	};
 
 	const getMigrationElementToStore = (data: {
+		readonly exportItem: ExportItem;
+		readonly exportItemVersion: ExportItemVersion;
 		readonly context: ExportContext;
 		readonly contentType: FlattenedContentType;
 		readonly typeElement: FlattenedContentTypeElement;
 		readonly exportElement: ElementModels.ContentItemElement;
 	}): MigrationElementTransformData => {
-		try {
-			return exportTransforms[data.typeElement.type]({
+		const {
+			success,
+			data: migrationElement,
+			error,
+		} = tryCatch(() =>
+			exportTransforms[data.typeElement.type]({
 				context: data.context,
 				typeElement: data.typeElement,
 				exportElement: {
-					components: data.exportElement.components.map((component) => mapToMigrationComponent(data.context, component)),
+					components: data.exportElement.components.map((component) => {
+						return mapToMigrationComponent(data.exportItem, data.exportItemVersion, data.context, component);
+					}),
 					value: data.exportElement.value,
 					urlSlugMode: data.exportElement.mode,
 					displayTimezone: data.exportElement.display_timezone ?? undefined,
 				},
-			});
-		} catch (error) {
+			}),
+		);
+
+		if (!success) {
 			const errorData = extractErrorData(error);
 
 			throw new InvalidValueError({
 				element: data.typeElement,
 				contentType: data.contentType,
+				exportItem: data.exportItem,
+				exportItemVersion: data.exportItemVersion,
 				value: data.exportElement.value,
 				errorData: errorData,
 			});
 		}
+
+		return migrationElement;
 	};
 
 	const exportAssetsAsync = async (context: ExportContext): Promise<readonly Readonly<MigrationAsset>[]> => {

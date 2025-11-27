@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import { match, P } from "ts-pattern";
+import type { ExportItem, ExportItemVersion } from "../../export/export.models.js";
 import type { ErrorData, FlattenedContentType, FlattenedContentTypeElement } from "./core.models.js";
 
 const missingReferencesMessage = `You can skip missing references using the '${chalk.green("skipMissingReferences")}' option.`;
@@ -50,12 +51,17 @@ export class InvalidValueError extends MigrationToolkitError {
 		value,
 		contentType,
 		errorData,
+		exportItem,
+		exportItemVersion,
 	}: {
+		readonly exportItem: ExportItem;
+		readonly exportItemVersion: ExportItemVersion;
 		readonly element: FlattenedContentTypeElement;
 		readonly contentType: FlattenedContentType;
 		readonly value: unknown;
 		readonly errorData: ErrorData;
 	}) {
+		const isMissingReferenceError = errorData.error instanceof MissingAssetError || errorData.error instanceof MissingItemError;
 		let jsonValue: string | undefined;
 
 		try {
@@ -79,6 +85,15 @@ export class InvalidValueError extends MigrationToolkitError {
 			`  ${chalk.gray("├─")} Type:     ${chalk.green.bold(element.type)}`,
 			`  ${chalk.gray("└─")} ID:       ${chalk.dim(element.id)}`,
 			"",
+			`${chalk.cyan("📦 Item:")}`,
+			`  ${chalk.gray("├─")} Item codename: ${chalk.yellow.bold(exportItem.requestItem.itemCodename)}`,
+			`  ${chalk.gray("├─")} Language codename: ${chalk.yellow.bold(exportItem.requestItem.languageCodename)}`,
+			`  ${chalk.gray("└─")} Version codename: ${chalk.yellow.bold(exportItemVersion.workflowStepCodename)}`,
+			"",
+			`${chalk.cyan("📦 Item version:")}`,
+			`  ${chalk.gray("├─")} Workflow step codename: ${chalk.yellow.bold(exportItemVersion.workflowStepCodename)}`,
+			`  ${chalk.gray("└─")} Language variant: ${chalk.yellow.bold(exportItemVersion.languageVariant.language.codename)}`,
+			"",
 			chalk.cyan("Invalid Value:"),
 			chalk.dim(
 				match(jsonValue)
@@ -100,12 +115,9 @@ export class InvalidValueError extends MigrationToolkitError {
 				.returnType<readonly string[]>()
 				.with(P.string, (requestUrl) => [chalk.cyan("Request URL:"), chalk.gray(`  ${requestUrl}`), ""])
 				.otherwise(() => []),
-			...match(errorData.error)
+			...match(isMissingReferenceError)
 				.returnType<readonly string[]>()
-				.when(
-					(m) => m instanceof MissingAssetError || m instanceof MissingItemError,
-					() => [chalk.cyan("💡 Tip:"), chalk.gray(`  ${missingReferencesMessage}`), ""],
-				)
+				.with(true, () => [chalk.cyan("💡 Tip:"), chalk.gray(`  ${missingReferencesMessage}`), ""])
 				.otherwise(() => []),
 		];
 

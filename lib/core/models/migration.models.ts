@@ -8,7 +8,6 @@ import type {
 	MigrationElementsSchema,
 	MigrationElementTypeSchema,
 	MigrationElementValueSchema,
-	MigrationItemSchema,
 	MigrationItemSystemSchema,
 	MigrationItemVersionSchema,
 	MigrationReferenceSchema,
@@ -37,7 +36,7 @@ export namespace MigrationElementModels {
 	export type SubpagesElement = MigrationElementDef<"subpages", MigrationReference[]>;
 }
 
-export type MigrationReference<T extends string = string> = z.infer<typeof MigrationReferenceSchema> & {
+export type MigrationReference<T extends string = string> = Omit<z.infer<typeof MigrationReferenceSchema>, "codename"> & {
 	readonly codename: T;
 };
 
@@ -46,9 +45,7 @@ export type MigrationItemSystem<
 	TLanguageCodenames extends string = string,
 	TCollectionCodenames extends string = string,
 	TWorkflowCodenames extends string = string,
-> = z.infer<typeof MigrationItemSystemSchema> & {
-	readonly codename: string;
-	readonly name: string;
+> = Pick<z.infer<typeof MigrationItemSystemSchema>, "codename" | "name"> & {
 	readonly language: MigrationReference<TLanguageCodenames>;
 	readonly type: MigrationReference<TTypeCodenames>;
 	readonly collection: MigrationReference<TCollectionCodenames>;
@@ -77,7 +74,7 @@ export type MigrationItem<
 	TElements extends MigrationElements = MigrationElements,
 	TSystem extends MigrationItemSystem = MigrationItemSystem,
 	TWorkflowStepCodenames extends string = string,
-> = z.infer<typeof MigrationItemSchema> & {
+> = {
 	readonly versions: Readonly<MigrationItemVersion<TElements, TWorkflowStepCodenames>[]>;
 	readonly system: TSystem;
 };
