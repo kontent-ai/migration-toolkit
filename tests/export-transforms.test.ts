@@ -82,6 +82,7 @@ describe("Export Transforms - Asset Element", () => {
 		codename: "asset_element",
 		id: "element-id",
 		type: "asset",
+		name: "Asset",
 		element: {} as ContentTypeElements.ContentTypeElementModel,
 	};
 
@@ -168,6 +169,7 @@ describe("Export Transforms - Modular Content Element", () => {
 		codename: "modular_content",
 		id: "element-id",
 		type: "modular_content",
+		name: "Modular Content",
 		element: {} as ContentTypeElements.ILinkedItemsElement,
 	};
 
@@ -242,6 +244,7 @@ describe("Export Transforms - Subpages Element", () => {
 		codename: "subpages",
 		id: "element-id",
 		type: "subpages",
+		name: "Subpages",
 		element: {} as ContentTypeElements.ContentTypeElementModel,
 	};
 
@@ -300,6 +303,7 @@ describe("Export Transforms - Rich Text Element", () => {
 		codename: "rich_text",
 		id: "element-id",
 		type: "rich_text",
+		name: "Rich Text",
 		element: {} as ContentTypeElements.ContentTypeElementModel,
 	};
 
