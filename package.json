@@ -42,8 +42,8 @@
 		"biome:check": "biome check",
 		"biome:fix": "biome check --write",
 		"biome:fix:unsafe": "biome check --write --unsafe",
-		"eslint": "eslint",
-		"eslint:fix": "eslint --fix"
+		"eslint": "eslint lib samples scripts tests",
+		"eslint:fix": "eslint lib samples scripts tests --fix"
 	},
 	"keywords": [
 		"Kontent.ai",
