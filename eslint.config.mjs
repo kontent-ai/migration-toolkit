@@ -16,7 +16,7 @@ const compat = new FlatCompat({
 
 export default defineConfig([
 	{
-		files: ["lib/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts"],
+		files: ["lib/**/*.ts", "samples/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"],
 		extends: compat.extends("eslint:recommended", "plugin:@typescript-eslint/eslint-recommended"),
 
 		plugins: {
