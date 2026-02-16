@@ -90,6 +90,9 @@ export async function confirmImportAsync(data: {
 	readonly environmentId: string;
 	readonly apiKey: string;
 	readonly logger: Logger;
+	readonly dataToMigrate: {
+		readonly itemsCount: number;
+	};
 }): Promise<void> {
 	const environment = await managementClientUtils(
 		getMigrationManagementClient({
@@ -102,7 +105,7 @@ export async function confirmImportAsync(data: {
 	const text = getConfirmText({
 		action: "import",
 		targetEnvironment: environment,
-		itemsCount: undefined,
+		itemsCount: data.dataToMigrate.itemsCount,
 	});
 
 	await confirmAsync({

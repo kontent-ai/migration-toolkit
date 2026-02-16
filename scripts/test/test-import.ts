@@ -14,15 +14,18 @@ const run = async () => {
 	const apiKey = getEnvironmentRequiredValue("targetApiKey");
 	const log = getDefaultLogger();
 
+	const data = await extractAsync({
+		filename: "data.zip",
+	});
+
 	await confirmImportAsync({
 		force: false,
 		apiKey: apiKey,
 		environmentId: environmentId,
 		logger: log,
-	});
-
-	const data = await extractAsync({
-		filename: "data.zip",
+		dataToMigrate: {
+			itemsCount: data.items.length,
+		},
 	});
 
 	await importAsync({

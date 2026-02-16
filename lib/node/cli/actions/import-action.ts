@@ -14,16 +14,19 @@ export async function importActionAsync(argsFetcher: CliArgumentsFetcher): Promi
 	const force = argsFetcher.getBooleanArgumentValue("force", false);
 	const filename = argsFetcher.getOptionalArgumentValue("filename") ?? defaultZipFilename;
 
+	const importData = await extractAsync({
+		logger: log,
+		filename: filename,
+	});
+
 	await confirmImportAsync({
 		force: force,
 		apiKey: apiKey,
 		environmentId: environmentId,
 		logger: log,
-	});
-
-	const importData = await extractAsync({
-		logger: log,
-		filename: filename,
+		dataToMigrate: {
+			itemsCount: importData.items.length,
+		},
 	});
 
 	await importAsync({
