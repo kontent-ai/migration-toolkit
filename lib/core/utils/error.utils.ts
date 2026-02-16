@@ -32,6 +32,8 @@ export function extractErrorData(error: unknown): ErrorData {
 					isUnknownError: false,
 					error: error,
 					message: `Found '${chalk.red(error.issues.length)}' parsing errors: \n${parsingErrorsMsg}`,
+					requestData: undefined,
+					requestUrl: undefined,
 				};
 			},
 		)
@@ -42,6 +44,8 @@ export function extractErrorData(error: unknown): ErrorData {
 					isUnknownError: false,
 					error: error,
 					message: error.message,
+					requestData: undefined,
+					requestUrl: undefined,
 				};
 			},
 		)
@@ -50,6 +54,8 @@ export function extractErrorData(error: unknown): ErrorData {
 				isUnknownError: true,
 				error: error,
 				message: `Unknown error`,
+				requestData: undefined,
+				requestUrl: undefined,
 			};
 		});
 }
