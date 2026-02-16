@@ -1,5 +1,5 @@
 import { getDefaultLogger } from "../../../core/logs/loggers.js";
-import { confirmImportAsync } from "../../../core/utils/confirm.utils.js";
+import { confirmImportAsync, type ItemPreview } from "../../../core/utils/confirm.utils.js";
 import { defaultZipFilename } from "../../../core/utils/global.utils.js";
 import { extractAsync } from "../../../toolkit/file.js";
 import { importAsync } from "../../../toolkit/import.js";
@@ -18,14 +18,20 @@ export async function importActionAsync(argsFetcher: CliArgumentsFetcher): Promi
 		logger: log,
 		filename: filename,
 	});
+	const importItems: readonly ItemPreview[] = importData.items.map((item) => {
+		return {
+			itemCodename: item.system.codename,
+			languageCodename: item.system.language.codename,
+		};
+	});
 
 	await confirmImportAsync({
 		force: force,
 		apiKey: apiKey,
 		environmentId: environmentId,
 		logger: log,
-		dataToMigrate: {
-			itemsCount: importData.items.length,
+		dataToImport: {
+			importItems: importItems,
 		},
 	});
 

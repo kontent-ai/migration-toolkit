@@ -36,7 +36,7 @@ const run = async () => {
 		skipMissingReferences: false,
 		logger: logger,
 		dataToMigrate: {
-			itemsCount: itemsToMigrate.length,
+			migrateItems: itemsToMigrate,
 		},
 	});
 

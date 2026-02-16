@@ -34,7 +34,7 @@ export async function migrateActionAsync(argsFetcher: CliArgumentsFetcher): Prom
 		},
 		logger,
 		dataToMigrate: {
-			itemsCount: migrateItems.length,
+			migrateItems,
 		},
 	});
 

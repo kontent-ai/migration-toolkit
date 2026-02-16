@@ -17,14 +17,20 @@ const run = async () => {
 	const data = await extractAsync({
 		filename: "data.zip",
 	});
+	const importItems = data.items.map((item) => {
+		return {
+			itemCodename: item.system.codename,
+			languageCodename: item.system.language.codename,
+		};
+	});
 
 	await confirmImportAsync({
 		force: false,
 		apiKey: apiKey,
 		environmentId: environmentId,
 		logger: log,
-		dataToMigrate: {
-			itemsCount: data.items.length,
+		dataToImport: {
+			importItems: importItems,
 		},
 	});
 

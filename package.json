@@ -31,7 +31,7 @@
 		"biome:fix": "biome check --write",
 		"biome:fix:unsafe": "biome check --write --unsafe",
 		"clean": "tsx scripts/clean.ts",
-		"update:version": "tsx ./scripts/version/update-version.ts",
+		"update:version": "tsx ./scripts/version/update-version.ts && npm run biome:fix",
 		"test:migrate": "cd scripts/test && tsx test-migrate.ts",
 		"test:import": "cd scripts/test && tsx test-import.ts",
 		"test:export": "cd scripts/test && tsx test-export.ts",

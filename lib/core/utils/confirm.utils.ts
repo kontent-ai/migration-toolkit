@@ -1,12 +1,16 @@
 import type { EnvironmentModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import { match, P } from "ts-pattern";
-import type { SourceExportItem } from "../../export/export.models.js";
 import { MigrationToolkitError } from "../models/error.models.js";
 import type { Logger } from "../models/log.models.js";
 import { getMigrationManagementClient, managementClientUtils } from "./management-client-utils.js";
 
 const maxItemsShownInPreview = 20;
+
+export type ItemPreview = {
+	readonly itemCodename: string;
+	readonly languageCodename: string;
+};
 
 export async function confirmExportAsync(data: {
 	readonly force: boolean;
@@ -15,7 +19,7 @@ export async function confirmExportAsync(data: {
 	readonly logger: Logger;
 	readonly skipMissingReferences: boolean;
 	readonly dataToExport: {
-		readonly exportItems: readonly SourceExportItem[];
+		readonly exportItems: readonly ItemPreview[];
 	};
 }): Promise<void> {
 	const environment = await managementClientUtils(
@@ -55,7 +59,7 @@ export async function confirmMigrateAsync(data: {
 	readonly skipMissingReferences: boolean;
 	readonly logger: Logger;
 	readonly dataToMigrate: {
-		readonly itemsCount: number;
+		readonly migrateItems: readonly ItemPreview[];
 	};
 }): Promise<void> {
 	const sourceEnvironment = await managementClientUtils(
@@ -75,7 +79,8 @@ export async function confirmMigrateAsync(data: {
 
 	const text = getConfirmText({
 		action: "migrate",
-		itemsCount: data.dataToMigrate.itemsCount,
+		itemsCount: data.dataToMigrate.migrateItems.length,
+		migrateItems: data.dataToMigrate.migrateItems,
 		sourceEnvironment,
 		targetEnvironment,
 		skipMissingReferences: data.skipMissingReferences,
@@ -94,8 +99,8 @@ export async function confirmImportAsync(data: {
 	readonly environmentId: string;
 	readonly apiKey: string;
 	readonly logger: Logger;
-	readonly dataToMigrate: {
-		readonly itemsCount: number;
+	readonly dataToImport: {
+		readonly importItems: readonly ItemPreview[];
 	};
 }): Promise<void> {
 	const environment = await managementClientUtils(
@@ -109,7 +114,8 @@ export async function confirmImportAsync(data: {
 	const text = getConfirmText({
 		action: "import",
 		targetEnvironment: environment,
-		itemsCount: data.dataToMigrate.itemsCount,
+		itemsCount: data.dataToImport.importItems.length,
+		importItems: data.dataToImport.importItems,
 	});
 
 	await confirmAsync({
@@ -153,6 +159,8 @@ function getConfirmText({
 	action,
 	itemsCount,
 	exportItems,
+	importItems,
+	migrateItems,
 	sourceEnvironment,
 	targetEnvironment,
 	skipMissingReferences,
@@ -160,12 +168,28 @@ function getConfirmText({
 	readonly action: "export" | "import" | "migrate";
 	readonly skipMissingReferences?: boolean;
 	readonly itemsCount?: number;
-	readonly exportItems?: readonly SourceExportItem[];
+	readonly exportItems?: readonly ItemPreview[];
+	readonly importItems?: readonly ItemPreview[];
+	readonly migrateItems?: readonly ItemPreview[];
 	readonly sourceEnvironment?: EnvironmentModels.EnvironmentInformationModel;
 	readonly targetEnvironment?: EnvironmentModels.EnvironmentInformationModel;
 }): string {
-	const exportItemsPreview: readonly SourceExportItem[] = exportItems?.slice(0, maxItemsShownInPreview) ?? [];
-	const remainingExportItemsCount: number = Math.max((exportItems?.length ?? 0) - exportItemsPreview.length, 0);
+	const previewItems: readonly ItemPreview[] = match(action)
+		.returnType<readonly ItemPreview[]>()
+		.with("export", () => exportItems ?? [])
+		.with("import", () => importItems ?? [])
+		.with("migrate", () => migrateItems ?? [])
+		.exhaustive()
+		.slice(0, maxItemsShownInPreview);
+	const remainingPreviewItemsCount: number = Math.max(
+		match(action)
+			.returnType<number>()
+			.with("export", () => exportItems?.length ?? 0)
+			.with("import", () => importItems?.length ?? 0)
+			.with("migrate", () => migrateItems?.length ?? 0)
+			.exhaustive() - previewItems.length,
+		0,
+	);
 
 	const lines: readonly string[] = [
 		`\n${"=".repeat(70)}`,
@@ -205,15 +229,21 @@ function getConfirmText({
 			.otherwise(() => []),
 		...match(action)
 			.returnType<readonly string[]>()
-			.with("export", () => [
-				...match(exportItemsPreview.length)
+			.with(P.union("export", "import", "migrate"), (action) => [
+				...match(previewItems.length)
 					.returnType<readonly string[]>()
 					.with(
 						P.when((count) => count > 0),
 						() => [
-							`${chalk.cyan("🧾 Export item codenames preview:")}`,
-							...exportItemsPreview.map((item) => `  ${chalk.gray("├─")} ${item.itemCodename} (${item.languageCodename})`),
-							...match(remainingExportItemsCount)
+							`${chalk.cyan(
+								match(action)
+									.with("export", () => "🧾 Export item codenames preview:")
+									.with("import", () => "🧾 Import item codenames preview:")
+									.with("migrate", () => "🧾 Migrate item codenames preview:")
+									.exhaustive(),
+							)}`,
+							...previewItems.map((item) => `  ${chalk.gray("├─")} ${item.itemCodename} (${item.languageCodename})`),
+							...match(remainingPreviewItemsCount)
 								.returnType<readonly string[]>()
 								.with(
 									P.when((count) => count > 0),
