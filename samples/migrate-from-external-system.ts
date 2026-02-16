@@ -1,6 +1,14 @@
 import { Buffer as BufferProxy } from "buffer";
-import type { FileBinaryData, MigrationAsset, MigrationElementModels, MigrationItem, MigrationItemSystem } from "../lib/index.js";
-import { elementsBuilder, importAsync, storeAsync } from "../lib/index.js";
+import {
+	elementsBuilder,
+	type FileBinaryData,
+	importAsync,
+	type MigrationAsset,
+	type MigrationElementModels,
+	type MigrationItem,
+	type MigrationItemSystem,
+	storeAsync,
+} from "../lib/index.js";
 
 /**
  * Optionally (but highly recommended) you may define a migration model

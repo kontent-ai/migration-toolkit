@@ -1,5 +1,4 @@
-import type { LanguageVariantModels, ManagementClient, WorkflowModels } from "@kontent-ai/management-sdk";
-import { SharedModels } from "@kontent-ai/management-sdk";
+import { type LanguageVariantModels, type ManagementClient, SharedModels, type WorkflowModels } from "@kontent-ai/management-sdk";
 import { match } from "ts-pattern";
 import { type ShortestPathResult, type WorkflowStep, workflowHelper as workflowHelperInit } from "../../core/helpers/workflow-helper.js";
 import type { Logger, LogSpinnerData } from "../../core/models/log.models.js";

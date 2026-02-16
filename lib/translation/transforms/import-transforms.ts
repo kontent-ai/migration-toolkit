@@ -1,5 +1,4 @@
-import type { LanguageVariantElements, SharedContracts } from "@kontent-ai/management-sdk";
-import { LanguageVariantElementsBuilder } from "@kontent-ai/management-sdk";
+import { type LanguageVariantElements, LanguageVariantElementsBuilder, type SharedContracts } from "@kontent-ai/management-sdk";
 import type { MigrationElementTransformData, MigrationElementType, MigrationItem } from "../../core/models/migration.models.js";
 import { parseAsMigrationReferencesArray } from "../../core/utils/array.utils.js";
 import { isString } from "../../core/utils/global.utils.js";

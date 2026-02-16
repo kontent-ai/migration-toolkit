@@ -32,9 +32,9 @@ export async function processItemsAsync<InputItem, OutputItem>(data: {
 		const limit = pLimit(data.parallelLimit);
 		let processedItemsCount: number = 1;
 
-		const requests: readonly Promise<ItemProcessingResult<InputItem, OutputItem>>[] = data.items.map((item) =>
-			limit(() => {
-				return data
+		const requests: readonly Promise<ItemProcessingResult<InputItem, OutputItem>>[] = data.items.map(async (item) =>
+			limit(async () => {
+				return await data
 					.processAsync(item, logSpinner)
 					.then<OutputItem | "404">((output) => {
 						const itemInfo = data.itemInfo(item);

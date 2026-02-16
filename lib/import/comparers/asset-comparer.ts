@@ -71,6 +71,10 @@ function areDescriptionsIdentical(data: {
 	readonly targetAsset: Readonly<AssetModels.Asset>;
 	readonly languages: readonly Readonly<LanguageModels.LanguageModel>[];
 }): boolean {
+	const languageComparer = (a: MigrationAssetDescription, b: MigrationAssetDescription) => {
+		return a.language.codename.localeCompare(b.language.codename);
+	};
+
 	const sourceMigrationDescriptions = (data.migrationAsset.descriptions ?? [])
 		.map<MigrationAssetDescription>((description) => {
 			return {
@@ -80,8 +84,8 @@ function areDescriptionsIdentical(data: {
 				},
 			};
 		})
-		.toSorted();
-	const targetMigrationDescriptions = mapToMigrationDescriptions(data).toSorted();
+		.toSorted(languageComparer);
+	const targetMigrationDescriptions = mapToMigrationDescriptions(data).toSorted(languageComparer);
 
 	return deepEqual(sourceMigrationDescriptions, targetMigrationDescriptions);
 }

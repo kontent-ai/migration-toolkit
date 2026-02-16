@@ -1,8 +1,7 @@
 import type { AssetModels, ContentItemModels, LanguageVariantModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import { match } from "ts-pattern";
-import type { WorkflowStep } from "../../core/helpers/workflow-helper.js";
-import { workflowHelper as workflowHelperInit } from "../../core/helpers/workflow-helper.js";
+import { type WorkflowStep, workflowHelper as workflowHelperInit } from "../../core/helpers/workflow-helper.js";
 import type {
 	AssetStateInTargetEnvironmentByCodename,
 	ItemStateInTargetEnvironmentByCodename,

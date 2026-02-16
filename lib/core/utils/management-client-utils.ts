@@ -1,16 +1,16 @@
 import type { IRetryStrategyOptions } from "@kontent-ai/core-sdk";
-import type {
-	AssetFolderModels,
-	CollectionModels,
-	ContentTypeModels,
-	ContentTypeSnippetModels,
-	EnvironmentModels,
-	LanguageModels,
-	ManagementClient,
-	TaxonomyModels,
-	WorkflowModels,
+import {
+	type AssetFolderModels,
+	type CollectionModels,
+	type ContentTypeModels,
+	type ContentTypeSnippetModels,
+	createManagementClient,
+	type EnvironmentModels,
+	type LanguageModels,
+	type ManagementClient,
+	type TaxonomyModels,
+	type WorkflowModels,
 } from "@kontent-ai/management-sdk";
-import { createManagementClient } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import { coreConfig } from "../config.js";
 import type { FlattenedContentType, FlattenedContentTypeElement } from "../models/core.models.js";

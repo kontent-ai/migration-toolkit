@@ -1,4 +1,4 @@
-// biome-ignore lint/performance/noBarrelFile: We need to export the public API
+// biome-ignore lint/performance/noBarrelFile: Ok for Public API
 export { getDefaultLogger } from "./core/logs/loggers.js";
 export { MigrationToolkitError, MissingAssetError, MissingItemError } from "./core/models/error.models.js";
 export type { Logger, LogMessage, LogSpinnerData, LogSpinnerMessage } from "./core/models/log.models.js";
@@ -10,3 +10,4 @@ export { exportAsync } from "./toolkit/export.js";
 export { extractAsync, storeAsync } from "./toolkit/file.js";
 export { importAsync } from "./toolkit/import.js";
 export { migrateAsync } from "./toolkit/migrate.js";
+export type { FileBinaryData } from "./zip/zip.models.js";

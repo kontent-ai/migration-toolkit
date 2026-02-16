@@ -1,5 +1,4 @@
-import type { ITrackingEventData } from "@kontent-ai-consulting/tools-analytics";
-import { getTrackingService } from "@kontent-ai-consulting/tools-analytics";
+import { getTrackingService, type ITrackingEventData } from "@kontent-ai-consulting/tools-analytics";
 import { isBrowser, isNode, isWebWorker } from "browser-or-node";
 import { format } from "bytes";
 import { getDefaultLogger } from "../logs/loggers.js";

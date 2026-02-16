@@ -1,5 +1,4 @@
-import type { IRetryStrategyOptions } from "@kontent-ai/core-sdk";
-import { HttpService } from "@kontent-ai/core-sdk";
+import { HttpService, type IRetryStrategyOptions } from "@kontent-ai/core-sdk";
 import { match } from "ts-pattern";
 import type { OriginalManagementError } from "../models/core.models.js";
 

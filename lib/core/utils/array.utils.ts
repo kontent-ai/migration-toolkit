@@ -12,8 +12,6 @@ export function parseAsMigrationReferencesArray(value: MigrationElementValue): r
 	throw new MigrationToolkitError("invalidValue", `Value is not an array`);
 }
 
-export function findRequired<T>(array: readonly T[], predicate: (item: T, index: number) => boolean, errorMessage: string): T;
-export function findRequired<T>(array: readonly T[], predicate: (item: T, index: number) => boolean, errorMessage: () => never): T;
 export function findRequired<T>(
 	array: readonly T[],
 	predicate: (item: T, index: number) => boolean,

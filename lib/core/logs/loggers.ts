@@ -1,5 +1,4 @@
-import type { ChalkInstance } from "chalk";
-import chalk from "chalk";
+import chalk, { type ChalkInstance } from "chalk";
 import { match, P } from "ts-pattern";
 import type { Logger, LogSpinnerMessage } from "../models/log.models.js";
 import { getCurrentEnvironment } from "../utils/global.utils.js";

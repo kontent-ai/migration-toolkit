@@ -8,10 +8,11 @@
 	},
 	"linter": {
 		"rules": {
-			"style": {
-				"useImportType": "error"
-			},
 			"correctness": {
+				"noUnusedImports": {
+					"fix": "safe",
+					"level": "error"
+				},
 				"useImportExtensions": {
 					"level": "error",
 					"options": {
@@ -22,6 +23,6 @@
 		}
 	},
 	"files": {
-		"includes": ["lib/**/*.ts", "tests/**/*.ts", "scripts/**/*.ts", "!.vscode"]
+		"includes": ["!dist"]
 	}
 }
