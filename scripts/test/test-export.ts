@@ -32,7 +32,7 @@ const run = async () => {
 		skipMissingReferences: true,
 		logger: logger,
 		dataToExport: {
-			itemsCount: exportItem.length,
+			exportItems: exportItem,
 		},
 	});
 

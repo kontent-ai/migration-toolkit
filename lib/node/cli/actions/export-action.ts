@@ -1,6 +1,7 @@
 import { getDefaultLogger } from "../../../core/logs/loggers.js";
 import { confirmExportAsync } from "../../../core/utils/confirm.utils.js";
 import { defaultZipFilename } from "../../../core/utils/global.utils.js";
+import type { SourceExportItem } from "../../../export/export.models.js";
 import { exportAsync } from "../../../toolkit/export.js";
 import { storeAsync } from "../../../toolkit/file.js";
 import type { CliArgumentsFetcher } from "../cli.models.js";
@@ -15,30 +16,29 @@ export async function exportActionAsync(cliFetcher: CliArgumentsFetcher): Promis
 	const force = cliFetcher.getBooleanArgumentValue("force", false);
 	const skipMissingReferences = cliFetcher.getBooleanArgumentValue("skipMissingReferences", false);
 	const filename = cliFetcher.getOptionalArgumentValue("filename") ?? defaultZipFilename;
+	const exportItems: readonly SourceExportItem[] = items.map((item) => {
+		return {
+			itemCodename: item,
+			languageCodename: language,
+		};
+	});
 
 	await confirmExportAsync({
 		force,
 		apiKey,
 		environmentId,
 		logger,
-		dataToExport: {
-			itemsCount: items.length,
-		},
+		dataToExport: { exportItems },
 		skipMissingReferences,
 	});
 
 	const exportedData = await exportAsync({
-		logger,
-		environmentId,
-		apiKey,
-		baseUrl,
-		exportItems: items.map((m) => {
-			return {
-				itemCodename: m,
-				languageCodename: language,
-			};
-		}),
-		skipMissingReferences,
+		logger: logger,
+		environmentId: environmentId,
+		apiKey: apiKey,
+		baseUrl: baseUrl,
+		exportItems: exportItems,
+		skipMissingReferences: skipMissingReferences,
 	});
 
 	await storeAsync({

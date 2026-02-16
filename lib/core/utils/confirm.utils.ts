@@ -1,9 +1,12 @@
 import type { EnvironmentModels } from "@kontent-ai/management-sdk";
 import chalk from "chalk";
 import { match, P } from "ts-pattern";
+import type { SourceExportItem } from "../../export/export.models.js";
 import { MigrationToolkitError } from "../models/error.models.js";
 import type { Logger } from "../models/log.models.js";
 import { getMigrationManagementClient, managementClientUtils } from "./management-client-utils.js";
+
+const maxItemsShownInPreview = 20;
 
 export async function confirmExportAsync(data: {
 	readonly force: boolean;
@@ -12,7 +15,7 @@ export async function confirmExportAsync(data: {
 	readonly logger: Logger;
 	readonly skipMissingReferences: boolean;
 	readonly dataToExport: {
-		readonly itemsCount: number;
+		readonly exportItems: readonly SourceExportItem[];
 	};
 }): Promise<void> {
 	const environment = await managementClientUtils(
@@ -25,7 +28,8 @@ export async function confirmExportAsync(data: {
 
 	const text = getConfirmText({
 		action: "export",
-		itemsCount: data.dataToExport.itemsCount,
+		itemsCount: data.dataToExport.exportItems.length,
+		exportItems: data.dataToExport.exportItems,
 		sourceEnvironment: environment,
 		skipMissingReferences: data.skipMissingReferences,
 	});
@@ -148,6 +152,7 @@ async function confirmAsync(data: {
 function getConfirmText({
 	action,
 	itemsCount,
+	exportItems,
 	sourceEnvironment,
 	targetEnvironment,
 	skipMissingReferences,
@@ -155,9 +160,13 @@ function getConfirmText({
 	readonly action: "export" | "import" | "migrate";
 	readonly skipMissingReferences?: boolean;
 	readonly itemsCount?: number;
+	readonly exportItems?: readonly SourceExportItem[];
 	readonly sourceEnvironment?: EnvironmentModels.EnvironmentInformationModel;
 	readonly targetEnvironment?: EnvironmentModels.EnvironmentInformationModel;
 }): string {
+	const exportItemsPreview: readonly SourceExportItem[] = exportItems?.slice(0, maxItemsShownInPreview) ?? [];
+	const remainingExportItemsCount: number = Math.max((exportItems?.length ?? 0) - exportItemsPreview.length, 0);
+
 	const lines: readonly string[] = [
 		`\n${"=".repeat(70)}`,
 		...match(action)
@@ -192,6 +201,29 @@ function getConfirmText({
 				`${chalk.cyan("📦 Items to process:")}`,
 				`  ${chalk.gray("├─")} Count: ${chalk.green.bold(itemsCount)}`,
 				"",
+			])
+			.otherwise(() => []),
+		...match(action)
+			.returnType<readonly string[]>()
+			.with("export", () => [
+				...match(exportItemsPreview.length)
+					.returnType<readonly string[]>()
+					.with(
+						P.when((count) => count > 0),
+						() => [
+							`${chalk.cyan("🧾 Export item codenames preview:")}`,
+							...exportItemsPreview.map((item) => `  ${chalk.gray("├─")} ${item.itemCodename} (${item.languageCodename})`),
+							...match(remainingExportItemsCount)
+								.returnType<readonly string[]>()
+								.with(
+									P.when((count) => count > 0),
+									(count) => [`  ${chalk.gray("└─")} and ${chalk.yellow.bold(count)} more`],
+								)
+								.otherwise(() => []),
+							"",
+						],
+					)
+					.otherwise(() => []),
 			])
 			.otherwise(() => []),
 		...match(action)
