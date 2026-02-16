@@ -46,7 +46,7 @@ export async function executeWithTrackingAsync<TResult>(data: {
 	const trackingService = getTrackingService();
 	const logger = data.logger ?? getDefaultLogger();
 
-	const event = await runTrackingFuncWithErrorHadlingAsync({
+	const event = await runWithTrackingAsync({
 		func: async () => {
 			return await trackingService.trackEventAsync(data.event);
 		},
@@ -57,7 +57,7 @@ export async function executeWithTrackingAsync<TResult>(data: {
 		const result = await data.func();
 
 		if (event) {
-			await runTrackingFuncWithErrorHadlingAsync({
+			await runWithTrackingAsync({
 				func: async () => {
 					await trackingService.setEventResultAsync({
 						eventId: event.eventId,
@@ -71,7 +71,7 @@ export async function executeWithTrackingAsync<TResult>(data: {
 		return result;
 	} catch (error) {
 		if (event) {
-			await runTrackingFuncWithErrorHadlingAsync({
+			await runWithTrackingAsync({
 				func: async () => {
 					await trackingService.setEventResultAsync({
 						eventId: event.eventId,
@@ -86,10 +86,7 @@ export async function executeWithTrackingAsync<TResult>(data: {
 	}
 }
 
-async function runTrackingFuncWithErrorHadlingAsync<T>(data: {
-	readonly func: () => Promise<T>;
-	readonly logger: Logger;
-}): Promise<T | undefined> {
+async function runWithTrackingAsync<T>(data: { readonly func: () => Promise<T>; readonly logger: Logger }): Promise<T | undefined> {
 	try {
 		return await data.func();
 	} catch (trackingError) {

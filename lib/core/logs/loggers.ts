@@ -27,19 +27,18 @@ const defaultNodeLogger: Logger = {
 				}
 			};
 
-			const result = await func((data) => {
-				// remember last used prefix. This is useful as we don't have to pass prefix to every single function
-				// calling the spinner
-				if (data.prefix) {
-					spinner.prefixText = data.prefix ?? "";
-				}
-				spinner.text = getLogDataMessage(data);
-			});
-
-			// restore original warn
-			global.console.warn = originalWarn;
-
-			return result;
+			try {
+				return await func((data) => {
+					// remember last used prefix. This is useful as we don't have to pass prefix to every single function
+					// calling the spinner
+					if (data.prefix) {
+						spinner.prefixText = data.prefix ?? "";
+					}
+					spinner.text = getLogDataMessage(data);
+				});
+			} finally {
+				global.console.warn = originalWarn;
+			}
 		}, {});
 	},
 };
