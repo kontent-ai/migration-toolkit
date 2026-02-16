@@ -52,28 +52,28 @@ export type LanguageVariantWorkflowState =
 	  }
 	| undefined;
 
-export interface ItemInfo {
+export type ItemInfo = {
 	readonly title: string;
 	readonly itemType: MapiType | MigrationItemType;
-}
+};
 
-export interface ErrorData {
+export type ErrorData = {
 	readonly message: string;
-	readonly requestData?: string;
-	readonly requestUrl?: string;
+	readonly requestData: string | undefined;
+	readonly requestUrl: string | undefined;
 	readonly isUnknownError: boolean;
 	readonly error: unknown;
-}
+};
 
-export interface ReferencedDataInMigrationItems {
+export type ReferencedDataInMigrationItems = {
 	readonly itemCodenames: ReadonlySet<string>;
 	readonly assetCodenames: ReadonlySet<string>;
-}
+};
 
-export interface ReferencedDataInLanguageVariants {
+export type ReferencedDataInLanguageVariants = {
 	readonly itemIds: ReadonlySet<string>;
 	readonly assetIds: ReadonlySet<string>;
-}
+};
 
 type DataStateInSourceEnvironmentById<T extends Readonly<ContentItemModels.ContentItem> | Readonly<AssetModels.Asset>> = {
 	readonly id: string;
@@ -96,61 +96,61 @@ export type ItemStateInSourceEnvironmentById = DataStateInSourceEnvironmentById<
 
 export type AssetStateInSourceEnvironmentById = DataStateInSourceEnvironmentById<Readonly<AssetModels.Asset>>;
 
-export interface ItemStateInTargetEnvironmentByCodename {
+export type ItemStateInTargetEnvironmentByCodename = {
 	readonly state: TargetItemState;
 	readonly itemCodename: string;
 	readonly item: Readonly<ContentItemModels.ContentItem> | undefined;
 	readonly externalIdToUse: string;
-}
+};
 
-export interface LanguageVariantStateData {
+export type LanguageVariantStateData = {
 	readonly languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined;
 	readonly workflow: Readonly<WorkflowModels.Workflow> | undefined;
 	readonly workflowState: LanguageVariantWorkflowState;
-}
+};
 
-export interface LanguageVariantStateInTargetEnvironmentByCodename {
+export type LanguageVariantStateInTargetEnvironmentByCodename = {
 	readonly state: TargetItemState;
 	readonly itemCodename: string;
 	readonly languageCodename: string;
 	readonly publishedLanguageVariant: LanguageVariantStateData | undefined;
 	readonly draftLanguageVariant: LanguageVariantStateData | undefined;
-}
+};
 
-export interface AssetStateInTargetEnvironmentByCodename {
+export type AssetStateInTargetEnvironmentByCodename = {
 	readonly state: TargetItemState;
 	readonly assetCodename: string;
 	readonly asset: Readonly<AssetModels.Asset> | undefined;
 	readonly externalIdToUse: string;
-}
+};
 
-export interface PackageMetadata {
+export type PackageMetadata = {
 	readonly created: Date;
 	readonly environmentId: string;
 	readonly dataOverview: PackageDataOverview;
-}
+};
 
-export interface PackageDataOverview {
+export type PackageDataOverview = {
 	readonly contentItemsCount: number;
 	readonly assetsCount: number;
-}
+};
 
-export interface FlattenedContentTypeElement {
+export type FlattenedContentTypeElement = {
 	readonly codename: string;
 	readonly name: string | undefined;
 	readonly id: string;
 	readonly type: MigrationElementType;
 	readonly element: Readonly<ContentTypeElements.ContentTypeElementModel>;
-}
+};
 
-export interface FlattenedContentType {
+export type FlattenedContentType = {
 	readonly contentTypeCodename: string;
 	readonly name: string;
 	readonly contentTypeId: string;
 	readonly elements: readonly FlattenedContentTypeElement[];
-}
+};
 
-export interface OriginalManagementError {
+export type OriginalManagementError = {
 	readonly response?: {
 		readonly status?: number;
 		readonly config?: {
@@ -161,7 +161,7 @@ export interface OriginalManagementError {
 			readonly error_code?: number;
 		};
 	};
-}
+};
 
 export type ItemProcessingResult<InputItem, OutputItem> =
 	| {

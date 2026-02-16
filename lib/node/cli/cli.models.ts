@@ -1,19 +1,19 @@
 import type { CliAction } from "../../core/models/core.models.js";
 
-export interface Command {
+export type Command = {
 	readonly name: string;
 	readonly description: string;
 	readonly options: readonly CommandOption[];
 	readonly examples: string[];
-}
+};
 
-export interface CommandOption {
+export type CommandOption = {
 	readonly name: string;
 	readonly isRequired: boolean;
 	readonly alias?: string;
 	readonly description?: string;
 	readonly type?: "boolean" | "number" | "string";
-}
+};
 
 export type CliArgumentsSetter = {
 	withCommand(command: Command): CliArgumentsSetter;

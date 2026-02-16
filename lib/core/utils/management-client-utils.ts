@@ -20,12 +20,12 @@ import { isNotUndefined } from "./global.utils.js";
 import { defaultHttpService, defaultRetryStrategy } from "./http.utils.js";
 import { runMapiRequestAsync } from "./run.utils.js";
 
-export interface ManagementClientConfig {
+export type ManagementClientConfig = {
 	readonly environmentId: string;
 	readonly apiKey: string;
 	readonly retryStrategy?: Readonly<IRetryStrategyOptions>;
 	readonly baseUrl?: string;
-}
+};
 
 export function getMigrationManagementClient(config: ManagementClientConfig): Readonly<ManagementClient> {
 	return createManagementClient({

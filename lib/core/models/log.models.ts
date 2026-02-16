@@ -16,19 +16,19 @@ export type DebugType =
 	| MapiType
 	| MapiAction;
 
-export interface LogMessage {
+export type LogMessage = {
 	readonly type?: DebugType;
 	readonly message: string;
-}
+};
 
-export interface LogSpinnerMessage extends LogMessage {
+export type LogSpinnerMessage = LogMessage & {
 	readonly prefix?: string;
-}
+};
 
 export type LogData = (data: LogMessage) => void;
 export type LogSpinnerData = (data: LogSpinnerMessage) => void;
 
-export interface Logger {
+export type Logger = {
 	readonly logWithSpinnerAsync: <T>(func: (logData: LogSpinnerData) => Promise<T>) => Promise<T>;
 	readonly log: LogData;
-}
+};

@@ -1,7 +1,7 @@
-export interface ExternalIdGenerator {
+export type ExternalIdGenerator = {
 	readonly assetExternalId: (codename: string) => string;
 	readonly contentItemExternalId: (codename: string) => string;
-}
+};
 
 export const defaultExternalIdGenerator: ExternalIdGenerator = {
 	assetExternalId: (codename) => `asset_${codename}`,

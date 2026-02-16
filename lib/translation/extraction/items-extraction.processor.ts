@@ -9,25 +9,25 @@ import type { GetFlattenedElementByIds } from "../../export/export.models.js";
 import type { GetFlattenedElementByCodenames } from "../../import/import.models.js";
 import { richTextProcessor } from "../helpers/rich-text.processor.js";
 
-export interface ExtractItemById {
+export type ExtractItemById = {
 	readonly elements: readonly Readonly<ElementModels.ContentItemElement>[];
 	readonly contentTypeId: string;
-}
+};
 
-export interface ExtractItemByCodename {
+export type ExtractItemByCodename = {
 	readonly elements: MigrationElements;
 	readonly contentTypeCodename: string;
-}
+};
 
-export interface ReferencedDataInMigrationItemsLocal {
+export type ReferencedDataInMigrationItemsLocal = {
 	readonly itemCodenames: Set<string>;
 	readonly assetCodenames: Set<string>;
-}
+};
 
-export interface ReferencedDataInLanguageVariantsLocal {
+export type ReferencedDataInLanguageVariantsLocal = {
 	readonly itemIds: Set<string>;
 	readonly assetIds: Set<string>;
-}
+};
 
 export function itemsExtractionProcessor() {
 	const extractReferencedDataFromExtractItems = (

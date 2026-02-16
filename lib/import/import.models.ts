@@ -29,20 +29,20 @@ import type {
 import type { ExternalIdGenerator } from "../core/utils/external-id.utils.js";
 import type { ManagementClientConfig } from "../core/utils/management-client-utils.js";
 
-export interface ImportContextConfig {
+export type ImportContextConfig = {
 	readonly logger: Logger;
 	readonly managementClient: Readonly<ManagementClient>;
 	readonly externalIdGenerator: ExternalIdGenerator;
 	readonly migrationData: MigrationData;
-}
+};
 
-export interface ImportContextEnvironmentData {
+export type ImportContextEnvironmentData = {
 	readonly languages: readonly Readonly<LanguageModels.LanguageModel>[];
 	readonly assetFolders: readonly Readonly<AssetFolderModels.AssetFolder>[];
 	readonly collections: readonly Readonly<CollectionModels.Collection>[];
 	readonly workflows: readonly Readonly<WorkflowModels.Workflow>[];
 	readonly types: readonly Readonly<FlattenedContentType>[];
-}
+};
 
 export type GetFlattenedElementByCodenames = (
 	contentTypeCodename: string,
@@ -50,12 +50,12 @@ export type GetFlattenedElementByCodenames = (
 	expectedElementType: MigrationElementType,
 ) => FlattenedContentTypeElement;
 
-export interface CategorizedImportData {
+export type CategorizedImportData = {
 	readonly assets: readonly MigrationAsset[];
 	readonly contentItems: readonly MigrationItem[];
-}
+};
 
-export interface ImportContext {
+export type ImportContext = {
 	readonly categorizedImportData: CategorizedImportData;
 	readonly referencedData: ReferencedDataInMigrationItems;
 	readonly environmentData: ImportContextEnvironmentData;
@@ -66,7 +66,7 @@ export interface ImportContext {
 	) => LanguageVariantStateInTargetEnvironmentByCodename;
 	readonly getAssetStateInTargetEnvironment: (assetCodename: string) => AssetStateInTargetEnvironmentByCodename;
 	readonly getElement: GetFlattenedElementByCodenames;
-}
+};
 
 export type ImportTransformFunc = (data: {
 	readonly elementData: MigrationElementTransformData;
@@ -75,18 +75,18 @@ export type ImportTransformFunc = (data: {
 	readonly migrationItems: readonly MigrationItem[];
 }) => LanguageVariantElements.ILanguageVariantElementBase;
 
-export interface ImportConfig extends ManagementClientConfig {
+export type ImportConfig = ManagementClientConfig & {
 	readonly data: MigrationData;
 	readonly externalIdGenerator?: ExternalIdGenerator;
 	readonly createReportFile?: boolean;
 	readonly logger?: Logger;
-}
+};
 
-export interface AssetToEdit {
+export type AssetToEdit = {
 	readonly migrationAsset: MigrationAsset;
 	readonly targetAsset: Readonly<AssetModels.Asset>;
 	readonly replaceBinaryFile: boolean;
-}
+};
 
 export type ImportedItem = ItemProcessingResult<MigrationItem, Readonly<ContentItemModels.ContentItem>>;
 export type ImportedLanguageVariant = ItemProcessingResult<
@@ -96,9 +96,9 @@ export type ImportedLanguageVariant = ItemProcessingResult<
 export type EditedAsset = ItemProcessingResult<AssetToEdit, Readonly<AssetModels.Asset>>;
 export type ImportedAsset = ItemProcessingResult<MigrationAsset, Readonly<AssetModels.Asset>>;
 
-export interface ImportResult {
+export type ImportResult = {
 	readonly uploadedAssets: readonly ImportedAsset[];
 	readonly editedAssets: readonly EditedAsset[];
 	readonly contentItems: readonly ImportedItem[];
 	readonly languageVariants: readonly ImportedLanguageVariant[];
-}
+};

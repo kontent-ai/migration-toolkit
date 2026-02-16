@@ -22,11 +22,11 @@ import { runMapiRequestAsync } from "../../core/utils/run.utils.js";
 import { type ExtractItemByCodename, itemsExtractionProcessor } from "../../translation/extraction/items-extraction.processor.js";
 import type { GetFlattenedElementByCodenames, ImportContext, ImportContextConfig, ImportContextEnvironmentData } from "../import.models.js";
 
-interface LanguageVariantWrapper {
+type LanguageVariantWrapper = {
 	readonly draftLanguageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined;
 	readonly publishedLanguageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant> | undefined;
 	readonly migrationItem: MigrationItem;
-}
+};
 
 export async function importContextFetcherAsync(config: ImportContextConfig) {
 	const getEnvironmentDataAsync = async (): Promise<ImportContextEnvironmentData> => {

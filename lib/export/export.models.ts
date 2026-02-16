@@ -20,23 +20,23 @@ import type { Logger } from "../core/models/log.models.js";
 import type { MigrationComponent, MigrationElementTransformData, MigrationUrlSlugMode } from "../core/models/migration.models.js";
 import type { ManagementClientConfig } from "../core/utils/management-client-utils.js";
 
-export interface ExportContextEnvironmentData {
+export type ExportContextEnvironmentData = {
 	readonly languages: readonly Readonly<LanguageModels.LanguageModel>[];
 	readonly contentTypes: readonly Readonly<FlattenedContentType>[];
 	readonly collections: readonly Readonly<CollectionModels.Collection>[];
 	readonly assetFolders: readonly Readonly<AssetFolderModels.AssetFolder>[];
 	readonly workflows: readonly Readonly<WorkflowModels.Workflow>[];
 	readonly taxonomies: readonly Readonly<TaxonomyModels.Taxonomy>[];
-}
+};
 
 export type ExportElementValue = string | number | SharedModels.ReferenceObject[] | undefined;
 
-export interface ExportElement {
+export type ExportElement = {
 	readonly value: ExportElementValue;
 	readonly components: readonly MigrationComponent[];
 	readonly urlSlugMode: MigrationUrlSlugMode | undefined;
 	readonly displayTimezone: string | undefined;
-}
+};
 
 export type ExportTransformFunc = (data: {
 	readonly typeElement: FlattenedContentTypeElement;
@@ -44,7 +44,7 @@ export type ExportTransformFunc = (data: {
 	readonly context: ExportContext;
 }) => MigrationElementTransformData;
 
-export interface ExportContext {
+export type ExportContext = {
 	readonly environmentData: ExportContextEnvironmentData;
 	readonly referencedData: ReferencedDataInLanguageVariants;
 	readonly getItemStateInSourceEnvironment: (id: string) => ItemStateInSourceEnvironmentById;
@@ -52,23 +52,23 @@ export interface ExportContext {
 	readonly exportItems: readonly ExportItem[];
 	readonly getElement: GetFlattenedElementByIds;
 	readonly exportContextOptions: ExportContextOptions;
-}
+};
 
-export interface SourceExportItem {
+export type SourceExportItem = {
 	readonly itemCodename: string;
 	readonly languageCodename: string;
-}
+};
 
-export interface ExportContextOptions {
+export type ExportContextOptions = {
 	/**
 	 * When enabled, the export process will skip missing items and assets instead of throwing errors.
 	 * Missing references will be filtered out from the exported data.
 	 * Default: false
 	 */
 	readonly skipMissingReferences?: boolean;
-}
+};
 
-export interface ExportConfig extends ManagementClientConfig {
+export type ExportConfig = ManagementClientConfig & {
 	readonly exportItems: readonly SourceExportItem[];
 	readonly logger?: Logger;
 	/**
@@ -77,23 +77,23 @@ export interface ExportConfig extends ManagementClientConfig {
 	 * Default: false
 	 */
 	readonly skipMissingReferences?: boolean;
-}
+};
 
-export interface DefaultExportContextConfig {
+export type DefaultExportContextConfig = {
 	readonly logger: Logger;
 	readonly exportItems: readonly SourceExportItem[];
 	readonly managementClient: Readonly<ManagementClient>;
 	readonly skipMissingReferences: boolean;
-}
+};
 
 export type GetFlattenedElementByIds = (contentTypeId: string, elementId: string) => FlattenedContentTypeElement;
 
-export interface ExportItemVersion {
+export type ExportItemVersion = {
 	readonly workflowStepCodename: string;
 	readonly languageVariant: Readonly<LanguageVariantModels.ContentItemLanguageVariant>;
-}
+};
 
-export interface ExportItem {
+export type ExportItem = {
 	readonly requestItem: SourceExportItem;
 	readonly versions: readonly ExportItemVersion[];
 	readonly contentItem: Readonly<ContentItemModels.ContentItem>;
@@ -102,4 +102,4 @@ export interface ExportItem {
 	readonly language: Readonly<LanguageModels.LanguageModel>;
 	readonly workflow: Readonly<WorkflowModels.Workflow>;
 	readonly contentType: Readonly<FlattenedContentType>;
-}
+};

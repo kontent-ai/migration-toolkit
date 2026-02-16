@@ -8,16 +8,16 @@ import { fileManager } from "../file/file-manager.js";
 import { libMetadata } from "../metadata.js";
 import { zipManager } from "../zip/zip-manager.js";
 
-export interface StoreConfig {
+export type StoreConfig = {
 	readonly data: MigrationData;
 	readonly filename?: string;
 	readonly logger?: Logger;
-}
+};
 
-export interface ExtractConfig {
+export type ExtractConfig = {
 	readonly filename?: string;
 	readonly logger?: Logger;
-}
+};
 
 export async function storeAsync(config: StoreConfig): Promise<void> {
 	const logger = config.logger ?? getDefaultLogger();
