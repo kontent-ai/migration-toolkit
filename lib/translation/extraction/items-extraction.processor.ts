@@ -1,4 +1,3 @@
-import { isArray } from "node:util";
 import type { ElementModels } from "@kontent-ai/management-sdk";
 import { match, P } from "ts-pattern";
 import type { ReferencedDataInLanguageVariants, ReferencedDataInMigrationItems } from "../../core/models/core.models.js";
@@ -88,7 +87,7 @@ export function itemsExtractionProcessor() {
 							});
 						})
 						.with(P.union("modular_content", "subpages"), () => {
-							if (itemElement.value && isArray(itemElement.value)) {
+							if (itemElement.value && Array.isArray(itemElement.value)) {
 								itemElement.value.forEach((value) => {
 									if (value.id) {
 										extractedIds.itemIds.add(value.id);
@@ -97,7 +96,7 @@ export function itemsExtractionProcessor() {
 							}
 						})
 						.with("asset", () => {
-							if (itemElement.value && isArray(itemElement.value)) {
+							if (itemElement.value && Array.isArray(itemElement.value)) {
 								itemElement.value.forEach((value) => {
 									if (value.id) {
 										extractedIds.assetIds.add(value.id);
