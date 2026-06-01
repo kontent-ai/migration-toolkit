@@ -1,6 +1,6 @@
 export type ExternalIdGenerator = {
-	readonly assetExternalId: (codename: string) => string;
-	readonly contentItemExternalId: (codename: string) => string;
+	readonly assetExternalId: (codename: string) => string | undefined;
+	readonly contentItemExternalId: (codename: string) => string | undefined;
 };
 
 export const defaultExternalIdGenerator: ExternalIdGenerator = {

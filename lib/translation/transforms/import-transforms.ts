@@ -1,7 +1,7 @@
 import { type LanguageVariantElements, LanguageVariantElementsBuilder, type SharedContracts } from "@kontent-ai/management-sdk";
 import type { MigrationElementTransformData, MigrationElementType, MigrationItem } from "../../core/models/migration.models.js";
 import { parseAsMigrationReferencesArray } from "../../core/utils/array.utils.js";
-import { isString } from "../../core/utils/global.utils.js";
+import { isNotUndefined, isString } from "../../core/utils/global.utils.js";
 import type { ImportContext, ImportTransformFunc } from "../../import/import.models.js";
 import { richTextProcessor } from "../helpers/rich-text.processor.js";
 
@@ -27,16 +27,25 @@ export const importTransforms: Readonly<Record<MigrationElementType, ImportTrans
 	asset: (data) => {
 		const assetReferences = parseAsMigrationReferencesArray(data.elementData.value)
 			.map((reference) => reference.codename)
-			.map<Readonly<SharedContracts.IReferenceObjectContract>>((codename) => {
+			.map<Readonly<SharedContracts.IReferenceObjectContract> | undefined>((codename) => {
 				const assetState = data.importContext.getAssetStateInTargetEnvironment(codename);
-
-				// only reference with external_id if item does not exist in target env
 				// API currently only supports referencing assets by ids only, not by codenames
-				return {
-					id: assetState.asset ? assetState.asset.id : undefined,
-					external_id: assetState.asset ? undefined : assetState.externalIdToUse,
-				};
-			});
+
+				if (assetState.asset) {
+					return {
+						id: assetState.asset.id,
+					};
+				}
+
+				if (assetState.externalIdToUse && assetState.state === "doesNotExists") {
+					return {
+						external_id: assetState.externalIdToUse,
+					};
+				}
+
+				return undefined;
+			})
+			.filter(isNotUndefined);
 
 		return elementsBuilder.assetElement({
 			element: {
@@ -65,15 +74,24 @@ export const importTransforms: Readonly<Record<MigrationElementType, ImportTrans
 	modular_content: (data) => {
 		const linkedItemReferences = parseAsMigrationReferencesArray(data.elementData.value)
 			.map((reference) => reference.codename)
-			.map<Readonly<SharedContracts.IReferenceObjectContract>>((codename) => {
+			.map<Readonly<SharedContracts.IReferenceObjectContract> | undefined>((codename) => {
 				const itemState = data.importContext.getItemStateInTargetEnvironment(codename);
 
-				// only reference with external_id if item does not exist in target env
-				return {
-					codename: itemState.item ? itemState.item.codename : undefined,
-					external_id: itemState.item ? undefined : itemState.externalIdToUse,
-				};
-			});
+				if (itemState.item) {
+					return {
+						codename: itemState.item.codename,
+					};
+				}
+
+				if (itemState.externalIdToUse && itemState.state === "doesNotExists") {
+					return {
+						external_id: itemState.externalIdToUse,
+					};
+				}
+
+				return undefined;
+			})
+			.filter(isNotUndefined);
 
 		return elementsBuilder.linkedItemsElement({
 			element: {

@@ -190,6 +190,10 @@ export function richTextProcessor() {
 						return objectTag;
 					}
 
+					if (!itemState.externalIdToUse) {
+						return "";
+					}
+
 					return objectTag.replaceAll(
 						`${attributes.codenames.itemCodenameAttribute}="${codename}"`,
 						`${attributes.ids.externalIdAttributeName}="${itemState.externalIdToUse}"`,
@@ -225,6 +229,11 @@ export function richTextProcessor() {
 					if (itemState.item && itemState.state === "exists") {
 						return linkTag;
 					}
+
+					if (!itemState.externalIdToUse) {
+						return "";
+					}
+
 					return linkTag.replaceAll(
 						`${attributes.codenames.linkItemCodenameAttribute}="${codename}"`,
 						`${attributes.ids.itemExternalIdAttributeName}="${itemState.externalIdToUse}"`,
@@ -260,6 +269,11 @@ export function richTextProcessor() {
 					if (assetState.asset && assetState.state === "exists") {
 						return figureTag;
 					}
+
+					if (!assetState.externalIdToUse) {
+						return "";
+					}
+
 					return figureTag.replaceAll(
 						`${attributes.codenames.assetCodenameAttribute}="${codename}"`,
 						`${attributes.ids.externalAssetIdAttributeName}="${assetState.externalIdToUse}"`,
@@ -295,6 +309,11 @@ export function richTextProcessor() {
 					if (assetState.asset && assetState.state === "exists") {
 						return linkTag;
 					}
+
+					if (!assetState.externalIdToUse) {
+						return "";
+					}
+
 					return linkTag.replaceAll(
 						`${attributes.codenames.assetCodenameAttribute}="${codename}"`,
 						`${attributes.ids.externalAssetIdAttributeName}="${assetState.externalIdToUse}"`,

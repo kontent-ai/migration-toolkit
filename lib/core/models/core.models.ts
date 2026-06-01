@@ -100,7 +100,7 @@ export type ItemStateInTargetEnvironmentByCodename = {
 	readonly state: TargetItemState;
 	readonly itemCodename: string;
 	readonly item: Readonly<ContentItemModels.ContentItem> | undefined;
-	readonly externalIdToUse: string;
+	readonly externalIdToUse: string | undefined;
 };
 
 export type LanguageVariantStateData = {
@@ -121,7 +121,7 @@ export type AssetStateInTargetEnvironmentByCodename = {
 	readonly state: TargetItemState;
 	readonly assetCodename: string;
 	readonly asset: Readonly<AssetModels.Asset> | undefined;
-	readonly externalIdToUse: string;
+	readonly externalIdToUse: string | undefined;
 };
 
 export type PackageMetadata = {
