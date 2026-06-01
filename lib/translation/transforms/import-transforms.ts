@@ -29,21 +29,21 @@ export const importTransforms: Readonly<Record<MigrationElementType, ImportTrans
 			.map((reference) => reference.codename)
 			.map<Readonly<SharedContracts.IReferenceObjectContract> | undefined>((codename) => {
 				const assetState = data.importContext.getAssetStateInTargetEnvironment(codename);
-				// API currently only supports referencing assets by ids only, not by codenames
-
 				if (assetState.asset) {
 					return {
 						id: assetState.asset.id,
 					};
 				}
 
-				if (assetState.externalIdToUse && assetState.state === "doesNotExists") {
+				if (!assetState.externalIdToUse && !assetState.asset) {
 					return {
-						external_id: assetState.externalIdToUse,
+						codename: assetState.assetCodename,
 					};
 				}
 
-				return undefined;
+				return {
+					external_id: assetState.externalIdToUse,
+				};
 			})
 			.filter(isNotUndefined);
 
@@ -83,13 +83,15 @@ export const importTransforms: Readonly<Record<MigrationElementType, ImportTrans
 					};
 				}
 
-				if (itemState.externalIdToUse && itemState.state === "doesNotExists") {
+				if (!itemState.externalIdToUse && !itemState.item) {
 					return {
-						external_id: itemState.externalIdToUse,
+						codename: itemState.itemCodename,
 					};
 				}
 
-				return undefined;
+				return {
+					external_id: itemState.externalIdToUse,
+				};
 			})
 			.filter(isNotUndefined);
 

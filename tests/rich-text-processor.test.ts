@@ -116,76 +116,68 @@ describe("Translate codenames in rich text processor", () => {
 	});
 });
 
-describe("Remove tag when target missing and no external id", () => {
-	it("Item tag is removed when item does not exist and external id is not set", () => {
-		const result = richTextProcessor.processItemCodenames(
-			`<p>before</p><object type="application/kenticocloud" data-type="item" data-codename="codename"></object><p>after</p>`,
-			(codename) => {
-				const replaceRes: ItemStateInTargetEnvironmentByCodename = {
-					externalIdToUse: undefined,
-					itemCodename: codename,
-					item: undefined,
-					state: "doesNotExists",
-				};
+describe("Keep tag unchanged when target missing and no external id", () => {
+	it("Item tag is kept as-is when item does not exist and external id is not set", () => {
+		const input = `<p>before</p><object type="application/kenticocloud" data-type="item" data-codename="codename"></object><p>after</p>`;
+		const result = richTextProcessor.processItemCodenames(input, (codename) => {
+			const replaceRes: ItemStateInTargetEnvironmentByCodename = {
+				externalIdToUse: undefined,
+				itemCodename: codename,
+				item: undefined,
+				state: "doesNotExists",
+			};
 
-				return replaceRes;
-			},
-		);
-		expect(result.html).toStrictEqual(`<p>before</p><p>after</p>`);
+			return replaceRes;
+		});
+		expect(result.html).toStrictEqual(input);
 		expect(result.codenames).toStrictEqual(new Set(["codename"]));
 	});
 
-	it("Link item tag is removed when item does not exist and external id is not set", () => {
-		const result = richTextProcessor.processLinkItemCodenames(
-			`<p>before</p><a data-item-codename="codename">link to a content item</a><p>after</p>`,
-			(codename) => {
-				const replaceRes: ItemStateInTargetEnvironmentByCodename = {
-					externalIdToUse: undefined,
-					itemCodename: codename,
-					item: undefined,
-					state: "doesNotExists",
-				};
+	it("Link item tag is kept as-is when item does not exist and external id is not set", () => {
+		const input = `<p>before</p><a data-item-codename="codename">link to a content item</a><p>after</p>`;
+		const result = richTextProcessor.processLinkItemCodenames(input, (codename) => {
+			const replaceRes: ItemStateInTargetEnvironmentByCodename = {
+				externalIdToUse: undefined,
+				itemCodename: codename,
+				item: undefined,
+				state: "doesNotExists",
+			};
 
-				return replaceRes;
-			},
-		);
-		expect(result.html).toStrictEqual(`<p>before</p><p>after</p>`);
+			return replaceRes;
+		});
+		expect(result.html).toStrictEqual(input);
 		expect(result.codenames).toStrictEqual(new Set(["codename"]));
 	});
 
-	it("Asset tag is removed when asset does not exist and external id is not set", () => {
-		const result = richTextProcessor.processAssetCodenames(
-			`<p>before</p><figure data-asset-codename="codename"><img src="#" data-asset-codename="codename"></figure><p>after</p>`,
-			(codename) => {
-				const replaceRes: AssetStateInTargetEnvironmentByCodename = {
-					externalIdToUse: undefined,
-					assetCodename: codename,
-					asset: undefined,
-					state: "doesNotExists",
-				};
+	it("Asset tag is kept as-is when asset does not exist and external id is not set", () => {
+		const input = `<p>before</p><figure data-asset-codename="codename"><img src="#" data-asset-codename="codename"></figure><p>after</p>`;
+		const result = richTextProcessor.processAssetCodenames(input, (codename) => {
+			const replaceRes: AssetStateInTargetEnvironmentByCodename = {
+				externalIdToUse: undefined,
+				assetCodename: codename,
+				asset: undefined,
+				state: "doesNotExists",
+			};
 
-				return replaceRes;
-			},
-		);
-		expect(result.html).toStrictEqual(`<p>before</p><p>after</p>`);
+			return replaceRes;
+		});
+		expect(result.html).toStrictEqual(input);
 		expect(result.codenames).toStrictEqual(new Set(["codename"]));
 	});
 
-	it("Link asset tag is removed when asset does not exist and external id is not set", () => {
-		const result = richTextProcessor.processLinkAssetCodenames(
-			`<p>before</p><a data-asset-codename="codename">link to an asset</a><p>after</p>`,
-			(codename) => {
-				const replaceRes: AssetStateInTargetEnvironmentByCodename = {
-					externalIdToUse: undefined,
-					assetCodename: codename,
-					asset: undefined,
-					state: "doesNotExists",
-				};
+	it("Link asset tag is kept as-is when asset does not exist and external id is not set", () => {
+		const input = `<p>before</p><a data-asset-codename="codename">link to an asset</a><p>after</p>`;
+		const result = richTextProcessor.processLinkAssetCodenames(input, (codename) => {
+			const replaceRes: AssetStateInTargetEnvironmentByCodename = {
+				externalIdToUse: undefined,
+				assetCodename: codename,
+				asset: undefined,
+				state: "doesNotExists",
+			};
 
-				return replaceRes;
-			},
-		);
-		expect(result.html).toStrictEqual(`<p>before</p><p>after</p>`);
+			return replaceRes;
+		});
+		expect(result.html).toStrictEqual(input);
 		expect(result.codenames).toStrictEqual(new Set(["codename"]));
 	});
 });

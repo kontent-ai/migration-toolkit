@@ -191,7 +191,9 @@ export function richTextProcessor() {
 					}
 
 					if (!itemState.externalIdToUse) {
-						return "";
+						// when external_id is not available, try falling back to initial codename - this can fail
+						// if the item does not exist in the target env
+						return objectTag;
 					}
 
 					return objectTag.replaceAll(
@@ -231,7 +233,9 @@ export function richTextProcessor() {
 					}
 
 					if (!itemState.externalIdToUse) {
-						return "";
+						// when external_id is not available, try falling back to initial codename - this can fail
+						// if the item does not exist in the target env
+						return linkTag;
 					}
 
 					return linkTag.replaceAll(
@@ -271,7 +275,9 @@ export function richTextProcessor() {
 					}
 
 					if (!assetState.externalIdToUse) {
-						return "";
+						// when external_id is not available, try falling back to initial codename - this can fail
+						// if the asset does not exist in the target env
+						return figureTag;
 					}
 
 					return figureTag.replaceAll(
@@ -311,7 +317,9 @@ export function richTextProcessor() {
 					}
 
 					if (!assetState.externalIdToUse) {
-						return "";
+						// when external_id is not available, try falling back to initial codename - this can fail
+						// if the asset does not exist in the target env
+						return linkTag;
 					}
 
 					return linkTag.replaceAll(
