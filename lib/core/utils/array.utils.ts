@@ -3,9 +3,6 @@ import type { MigrationElementValue, MigrationReference } from "../models/migrat
 import { isArray, isString } from "./global.utils.js";
 
 export function parseAsMigrationReferencesArray(value: MigrationElementValue): readonly MigrationReference[] {
-	if (!value) {
-		return [];
-	}
 	if (isArray(value)) {
 		return value;
 	}
