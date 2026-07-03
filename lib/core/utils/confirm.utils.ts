@@ -94,6 +94,39 @@ export async function confirmMigrateAsync(data: {
 	});
 }
 
+export async function confirmCleanAsync(data: {
+	readonly force: boolean;
+	readonly environmentId: string;
+	readonly apiKey: string;
+	readonly logger: Logger;
+	readonly dataToClean?: {
+		readonly include?: readonly string[];
+		readonly exclude?: readonly string[];
+	};
+}): Promise<void> {
+	const environment = await managementClientUtils(
+		getMigrationManagementClient({
+			environmentId: data.environmentId,
+			apiKey: data.apiKey,
+		}),
+		data.logger,
+	).getEnvironmentAsync();
+
+	const text = getConfirmText({
+		action: "clean",
+		targetEnvironment: environment,
+		cleanInclude: data.dataToClean?.include,
+		cleanExclude: data.dataToClean?.exclude,
+	});
+
+	await confirmAsync({
+		force: data.force,
+		logger: data.logger,
+		action: "Clean",
+		message: text,
+	});
+}
+
 export async function confirmImportAsync(data: {
 	readonly force: boolean;
 	readonly environmentId: string;
@@ -164,8 +197,10 @@ function getConfirmText({
 	sourceEnvironment,
 	targetEnvironment,
 	skipMissingReferences,
+	cleanInclude,
+	cleanExclude,
 }: {
-	readonly action: "export" | "import" | "migrate";
+	readonly action: "export" | "import" | "migrate" | "clean";
 	readonly skipMissingReferences?: boolean;
 	readonly itemsCount?: number;
 	readonly exportItems?: readonly ItemPreview[];
@@ -173,12 +208,15 @@ function getConfirmText({
 	readonly migrateItems?: readonly ItemPreview[];
 	readonly sourceEnvironment?: EnvironmentModels.EnvironmentInformationModel;
 	readonly targetEnvironment?: EnvironmentModels.EnvironmentInformationModel;
+	readonly cleanInclude?: readonly string[];
+	readonly cleanExclude?: readonly string[];
 }): string {
 	const previewItems: readonly ItemPreview[] = match(action)
 		.returnType<readonly ItemPreview[]>()
 		.with("export", () => exportItems ?? [])
 		.with("import", () => importItems ?? [])
 		.with("migrate", () => migrateItems ?? [])
+		.with("clean", () => [])
 		.exhaustive()
 		.slice(0, maxItemsShownInPreview);
 	const remainingPreviewItemsCount: number = Math.max(
@@ -187,6 +225,7 @@ function getConfirmText({
 			.with("export", () => exportItems?.length ?? 0)
 			.with("import", () => importItems?.length ?? 0)
 			.with("migrate", () => migrateItems?.length ?? 0)
+			.with("clean", () => 0)
 			.exhaustive() - previewItems.length,
 		0,
 	);
@@ -213,6 +252,12 @@ function getConfirmText({
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(sourceEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(sourceEnvironment?.id)}`,
 				`${chalk.cyan("📥 Target environment:")}`,
+				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
+				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
+				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
+			])
+			.with("clean", () => [
+				`${chalk.red("🧹 Environment to clean:")}`,
 				`  ${chalk.gray("├─")} Name:        ${chalk.yellow.bold(targetEnvironment?.name)}`,
 				`  ${chalk.gray("├─")} Environment: ${chalk.green.bold(targetEnvironment?.environment)}`,
 				`  ${chalk.gray("└─")} ID:          ${chalk.dim(targetEnvironment?.id)}`,
@@ -264,11 +309,38 @@ function getConfirmText({
 				"",
 			])
 			.otherwise(() => []),
+		...match(action)
+			.returnType<readonly string[]>()
+			.with("clean", () =>
+				match({ include: cleanInclude, exclude: cleanExclude })
+					.returnType<readonly string[]>()
+					.with({ include: P.when((include) => (include?.length ?? 0) > 0) }, ({ include }) => [
+						`${chalk.cyan("🗑️  Entities to clean:")}`,
+						`  ${chalk.gray("└─")} Only: ${chalk.yellow.bold(include?.join(", "))}`,
+						"",
+					])
+					.with({ exclude: P.when((exclude) => (exclude?.length ?? 0) > 0) }, ({ exclude }) => [
+						`${chalk.cyan("🗑️  Entities to clean:")}`,
+						`  ${chalk.gray("└─")} All except: ${chalk.yellow.bold(exclude?.join(", "))}`,
+						"",
+					])
+					.otherwise(() => [
+						`${chalk.cyan("🗑️  Entities to clean:")}`,
+						`  ${chalk.gray("└─")} ${chalk.red.bold("All entities")}`,
+						"",
+					]),
+			)
+			.otherwise(() => []),
 		`${chalk.yellow("⚠")}  ${match(action)
 			.returnType<string>()
 			.with("export", () => "Are you sure you want to export the data?")
 			.with("import", () => "Are you sure you want to import the data?")
 			.with("migrate", () => "Are you sure you want to migrate the data?")
+			.with(
+				"clean",
+				() =>
+					`${chalk.red.bold("This will permanently delete data from the environment above.")} Are you sure you want to clean it?`,
+			)
 			.exhaustive()}`,
 	];
 

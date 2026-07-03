@@ -32,6 +32,7 @@
 		"biome:fix:unsafe": "biome check --write --unsafe",
 		"clean": "tsx scripts/clean.ts",
 		"update:version": "tsx ./scripts/version/update-version.ts && npm run biome:fix",
+		"test:clean": "cd scripts/test && tsx test-clean.ts",
 		"test:migrate": "cd scripts/test && tsx test-migrate.ts",
 		"test:import": "cd scripts/test && tsx test-import.ts",
 		"test:export": "cd scripts/test && tsx test-export.ts",
@@ -66,6 +67,7 @@
 		"zod": "4.4.3"
 	},
 	"devDependencies": {
+		"@kontent-ai/data-ops": "2.7.0",
 		"@kontent-ai/biome-config": "0.7.3",
 		"@kontent-ai/eslint-config": "2.4.1",
 		"@biomejs/biome": "2.5.1",

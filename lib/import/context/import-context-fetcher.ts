@@ -358,7 +358,42 @@ export async function importContextFetcherAsync(config: ImportContextConfig) {
 		};
 	};
 
+	const targetProjectHasItemsAsync = async (): Promise<boolean> => {
+		return (await config.managementClient.listContentItems().toPromise()).data.items.length > 0;
+	};
+
+	const targetProjectHasAssetsAsync = async (): Promise<boolean> => {
+		return (await config.managementClient.listAssets().toPromise()).data.items.length > 0;
+	};
+
+	const mapItemCodenamesToNonExistentItems = (itemCodenames: ReadonlySet<string>): readonly ItemStateInTargetEnvironmentByCodename[] => {
+		return Array.from(itemCodenames).map<ItemStateInTargetEnvironmentByCodename>((codename) => {
+			return {
+				itemCodename: codename,
+				item: undefined,
+				state: "doesNotExists",
+				externalIdToUse: config.externalIdGenerator.contentItemExternalId(codename),
+			};
+		});
+	};
+
+	const mapAssetCodenamesToNonExistentAssets = (
+		assetCodenames: ReadonlySet<string>,
+	): readonly AssetStateInTargetEnvironmentByCodename[] => {
+		return Array.from(assetCodenames).map<AssetStateInTargetEnvironmentByCodename>((codename) => {
+			return {
+				assetCodename: codename,
+				asset: undefined,
+				state: "doesNotExists",
+				externalIdToUse: config.externalIdGenerator.assetExternalId(codename),
+			};
+		});
+	};
+
 	const getItemStatesAsync = async (itemCodenames: ReadonlySet<string>): Promise<readonly ItemStateInTargetEnvironmentByCodename[]> => {
+		if (!(await targetProjectHasItemsAsync())) {
+			return mapItemCodenamesToNonExistentItems(itemCodenames);
+		}
 		const items = await getContentItemsByCodenamesAsync(itemCodenames);
 
 		return Array.from(itemCodenames).map<ItemStateInTargetEnvironmentByCodename>((codename) => {
@@ -375,6 +410,9 @@ export async function importContextFetcherAsync(config: ImportContextConfig) {
 	const getAssetStatesAsync = async (
 		assetCodenames: ReadonlySet<string>,
 	): Promise<readonly AssetStateInTargetEnvironmentByCodename[]> => {
+		if (!(await targetProjectHasAssetsAsync())) {
+			return mapAssetCodenamesToNonExistentAssets(assetCodenames);
+		}
 		const assets = await getAssetsByCodenamesAsync(assetCodenames);
 
 		return Array.from(assetCodenames).map<AssetStateInTargetEnvironmentByCodename>((codename) => {
