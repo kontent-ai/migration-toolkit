@@ -50,7 +50,7 @@
 	],
 	"license": "MIT",
 	"dependencies": {
-		"@kontent-ai/management-sdk": "8.5.4",
+		"@kontent-ai/management-sdk": "8.5.5",
 		"browser-or-node": "3.0.0",
 		"buffer": "6.0.3",
 		"bytes": "3.1.2",
@@ -60,14 +60,14 @@
 		"jszip": "3.10.1",
 		"mime": "4.1.0",
 		"ora": "9.4.1",
-		"p-limit": "7.3.0",
+		"p-limit": "7.3.1",
 		"prompts": "2.4.2",
 		"ts-pattern": "5.9.0",
-		"yargs": "18.0.0",
+		"yargs": "18.1.0",
 		"zod": "4.4.3"
 	},
 	"devDependencies": {
-		"@kontent-ai/data-ops": "2.7.0",
+		"@kontent-ai/data-ops": "2.8.0",
 		"@kontent-ai/biome-config": "0.7.3",
 		"@kontent-ai/eslint-config": "2.4.1",
 		"@biomejs/biome": "2.5.1",
