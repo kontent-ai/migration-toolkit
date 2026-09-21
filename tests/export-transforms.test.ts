@@ -73,7 +73,7 @@ function createMockContext({
 		environmentData: { assetFolders: [], collections: [], contentTypes: [], languages: [], taxonomies: [], workflows: [] },
 		referencedData: { assetIds: new Set(), itemIds: new Set() },
 		exportItems: [],
-		getElement: (() => ({}) as FlattenedContentTypeElement) as ExportContext["getElement"],
+		getElement: () => ({}) as FlattenedContentTypeElement,
 	};
 }
 
