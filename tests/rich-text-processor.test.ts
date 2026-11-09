@@ -132,20 +132,4 @@ describe("Special caces", () => {
 		expect(result.html).toStrictEqual(`<a data-asset-codename="id-x">\nlink to an asset</a>`);
 		expect(result.ids).toStrictEqual(new Set(["id"]));
 	});
-
-	it("Link asset id should be translated when text contains line breaks", () => {
-		const result = richTextProcessor.processLinkAssetIds(`<a data-asset-id="id">\nlink to an asset</a>`, (id) => ({
-			codename: `${id}-x`,
-		}));
-		expect(result.html).toStrictEqual(`<a data-asset-codename="id-x">\nlink to an asset</a>`);
-		expect(result.ids).toStrictEqual(new Set(["id"]));
-	});
-
-	it("Link asset id should be translated when text contains line breaks", () => {
-		const result = richTextProcessor.processLinkAssetIds(`<a data-asset-id="id">\nlink to an asset</a>`, (id) => ({
-			codename: `${id}-x`,
-		}));
-		expect(result.html).toStrictEqual(`<a data-asset-codename="id-x">\nlink to an asset</a>`);
-		expect(result.ids).toStrictEqual(new Set(["id"]));
-	});
 });
