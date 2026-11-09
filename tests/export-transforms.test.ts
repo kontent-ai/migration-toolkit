@@ -5,7 +5,7 @@ import type {
 	FlattenedContentTypeElement,
 	ItemStateInSourceEnvironmentById,
 } from "../lib/core/models/core.models.js";
-import { MissingAssetError, MissingItemError } from "../lib/core/models/error.models.js";
+import { MigrationToolkitError, MissingAssetError, MissingItemError } from "../lib/core/models/error.models.js";
 import type { ExportContext, ExportElement } from "../lib/export/export.models.js";
 import { getMissingReferencePlaceholder } from "../lib/translation/helpers/export-placeholder.utils.js";
 import { exportTransforms } from "../lib/translation/transforms/export-transforms.js";
@@ -464,5 +464,43 @@ describe("Export Transforms - Rich Text Element", () => {
 		expect(result.value).toContain(getMissingReferencePlaceholder({ type: "item", id: "missing-item" }));
 		expect(result.value).toContain('data-asset-codename="valid_asset"');
 		expect(result.value).toContain(getMissingReferencePlaceholder({ type: "asset", id: "missing-asset" }));
+	});
+});
+
+describe("Export Transforms - Number Element", () => {
+	const typeElement: FlattenedContentTypeElement = {
+		codename: "number_element",
+		id: "element-id",
+		type: "number",
+		name: "Number",
+		element: {} as ContentTypeElements.ContentTypeElementModel,
+	};
+
+	const createExportElement = (value: ExportElement["value"]): ExportElement => ({
+		value,
+		components: [],
+		urlSlugMode: undefined,
+		displayTimezone: undefined,
+	});
+
+	it.each([
+		{ input: 0, expected: 0 },
+		{ input: 42, expected: 42 },
+		{ input: -1.5, expected: -1.5 },
+		{ input: undefined, expected: undefined },
+	])("should export $input as $expected", ({ input, expected }) => {
+		const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
+
+		const result = exportTransforms.number({ context, typeElement, exportElement: createExportElement(input) });
+
+		expect(result.value).toBe(expected);
+	});
+
+	it("should throw for array value", () => {
+		const context = createMockContext({ skipMissingReferences: false, itemStates: new Map(), assetStates: new Map() });
+
+		expect(() => exportTransforms.number({ context, typeElement, exportElement: createExportElement([{ id: "x" }]) })).toThrow(
+			MigrationToolkitError,
+		);
 	});
 });

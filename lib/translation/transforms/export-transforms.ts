@@ -5,6 +5,7 @@ import { MigrationToolkitError, MissingAssetError, MissingItemError } from "../.
 import type { MigrationElementTransformData, MigrationElementType, MigrationReference } from "../../core/models/migration.models.js";
 import { findRequired } from "../../core/utils/array.utils.js";
 import { isArray, isNotUndefined, isString } from "../../core/utils/global.utils.js";
+import { parseNumberElementValue } from "../../core/utils/number.utils.js";
 import type { ExportContext, ExportElement, ExportTransformFunc } from "../../export/export.models.js";
 import { getMissingReferencePlaceholder } from "../helpers/export-placeholder.utils.js";
 import { richTextProcessor } from "../helpers/rich-text.processor.js";
@@ -16,24 +17,8 @@ export const exportTransforms: Readonly<Record<MigrationElementType, ExportTrans
 		};
 	},
 	number: (data) => {
-		if (!data.exportElement.value) {
-			return {
-				value: undefined,
-			};
-		}
-
-		if (isArray(data.exportElement.value)) {
-			throw new MigrationToolkitError("invalidValue", `Expected value to be a number, not array`);
-		}
-
-		if (data.exportElement.value === 0) {
-			return {
-				value: 0,
-			};
-		}
-
 		return {
-			value: +data.exportElement.value,
+			value: parseNumberElementValue(data.exportElement.value),
 		};
 	},
 	date_time: (data) => {

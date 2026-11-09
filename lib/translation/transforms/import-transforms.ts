@@ -2,6 +2,7 @@ import { type LanguageVariantElements, LanguageVariantElementsBuilder, type Shar
 import type { MigrationElementTransformData, MigrationElementType, MigrationItem } from "../../core/models/migration.models.js";
 import { parseAsMigrationReferencesArray } from "../../core/utils/array.utils.js";
 import { isString } from "../../core/utils/global.utils.js";
+import { parseNumberElementValue } from "../../core/utils/number.utils.js";
 import type { ImportContext, ImportTransformFunc } from "../../import/import.models.js";
 import { richTextProcessor } from "../helpers/rich-text.processor.js";
 
@@ -99,7 +100,7 @@ export const importTransforms: Readonly<Record<MigrationElementType, ImportTrans
 			element: {
 				codename: data.elementCodename,
 			},
-			value: data.elementData.value ? +data.elementData.value : null,
+			value: parseNumberElementValue(data.elementData.value) ?? null,
 		});
 	},
 	rich_text: (data) => {
